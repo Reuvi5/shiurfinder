@@ -1,0 +1,29 @@
+node_modules/
+dist/
+build/
+coverage/
+
+# env — never commit real secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# editors / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# prisma
+apps/server/prisma/*.db
+apps/server/prisma/*.db-journal
+
+# vite
+apps/web/.vite/
+apps/web/dist/
