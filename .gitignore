@@ -5,8 +5,7 @@ coverage/
 
 # env — never commit real secrets
 .env
-.env.local
-.env.*.local
+.env.*
 !.env.example
 
 # logs

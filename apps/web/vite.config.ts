@@ -4,6 +4,8 @@ import path from 'node:path';
 
 export default defineConfig({
   plugins: [react()],
+  // One .env at the repo root serves both the server and the website.
+  envDir: path.resolve(__dirname, '../..'),
   resolve: {
     alias: {
       // The shared contract is TypeScript source, not a built package.
