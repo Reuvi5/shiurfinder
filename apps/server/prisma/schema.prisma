@@ -154,8 +154,10 @@ model Shiur {
 model Occurrence {
   id       String           @id @default(cuid())
   shiurId  String
-  startsAt DateTime // stored UTC, displayed New York
-  endsAt   DateTime?
+  // timestamptz, not Prisma's default timestamp: the SQL converts with
+  // AT TIME ZONE 'America/New_York', which is only correct on a timestamptz.
+  startsAt DateTime  @db.Timestamptz(3) // an instant; displayed New York
+  endsAt   DateTime? @db.Timestamptz(3)
   roomId   String? // overrides the shiur's room for this date only
   status   OccurrenceStatus @default(ON)
   reason   String? // why it changed or was cancelled
