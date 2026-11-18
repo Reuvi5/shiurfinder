@@ -85,8 +85,10 @@ export class MapService {
       publisherId: shul.id,
       name: shul.name,
       address: shul.address,
-      lat: shiurim[0]?.lat ?? 0,
-      lng: shiurim[0]?.lng ?? 0,
+      // From the shul, not its first shiur: a shul with nothing left today
+      // still has a location.
+      lat: shul.lat === null ? null : Number(shul.lat),
+      lng: shul.lng === null ? null : Number(shul.lng),
       shiurim,
     };
   }

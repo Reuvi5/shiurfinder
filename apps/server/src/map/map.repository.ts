@@ -7,6 +7,7 @@ import {
   METERS_PER_MILE,
   type ListRow,
   type PinRow,
+  type ShulRow,
   type MapRepositoryPort,
 } from './map.types';
 
@@ -79,13 +80,26 @@ export class MapRepository implements MapRepositoryPort {
     `;
   }
 
-  async findApprovedShul(
-    publisherId: string,
-  ): Promise<{ id: string; name: string; address: string | null } | null> {
-    return this.prisma.publisher.findFirst({
-      where: { id: publisherId, approved: true, type: 'SHUL' },
-      select: { id: true, name: true, address: true },
-    });
+  /**
+   * The shul itself, with its own coordinates. Raw SQL because Prisma can't read
+   * the geography column — and the coordinates can't come from the shiur rows,
+   * since a shul with nothing left today has none.
+   */
+  async findApprovedShul(publisherId: string): Promise<ShulRow | null> {
+    const rows = await this.prisma.$queryRaw<ShulRow[]>`
+      SELECT
+        shul.id,
+        shul."name",
+        shul."address",
+        ST_Y(shul.location::geometry) AS "lat",
+        ST_X(shul.location::geometry) AS "lng"
+      FROM "Publisher" shul
+      WHERE shul.id = ${publisherId}
+        AND shul."approved" = true
+        AND shul."type" = 'SHUL'
+      LIMIT 1;
+    `;
+    return rows[0] ?? null;
   }
 
   // ---------------------------------------------------------------- fragments

@@ -47,6 +47,9 @@ export interface ShulRow {
   id: string;
   name: string;
   address: string | null;
+  /** Null until the geocoder has set the shul's location. */
+  lat: number | null;
+  lng: number | null;
 }
 
 /**

@@ -69,8 +69,9 @@ export interface ShulTodayResult {
   publisherId: string;
   name: string;
   address: string | null;
-  lat: number;
-  lng: number;
+  /** The shul's own location; null only if it hasn't been geocoded yet. */
+  lat: number | null;
+  lng: number | null;
   shiurim: ShiurListItem[];
 }
 
