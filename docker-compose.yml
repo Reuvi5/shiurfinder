@@ -1,0 +1,28 @@
+# Local dev database.
+# Mirrors what we run on AWS RDS (Postgres 16 + PostGIS + pg_trgm) so that
+# the same migrations and the same raw SQL work in both places.
+#
+#   npm run db:up      start it
+#   npm run db:down    stop it
+#
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: shiurfinder-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shiurfinder
+      POSTGRES_PASSWORD: localdevpassword
+      POSTGRES_DB: shiurfinder
+    ports:
+      - "5432:5432"
+    volumes:
+      - shiurfinder-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shiurfinder -d shiurfinder"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  shiurfinder-pgdata:

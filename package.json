@@ -1,0 +1,32 @@
+{
+  "name": "shiurfinder",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Live shiurim on a map. MCON 357 team project.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:server dev:web",
+    "dev:server": "npm run start:dev --workspace @shiurfinder/server",
+    "dev:web": "npm run dev --workspace @shiurfinder/web",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "node scripts/guard-local-db.js && npm run prisma:migrate --workspace @shiurfinder/server",
+    "db:seed": "npm run prisma:seed --workspace @shiurfinder/server",
+    "db:studio": "npm run prisma:studio --workspace @shiurfinder/server",
+    "db:reset": "node scripts/guard-local-db.js && npm run prisma:reset --workspace @shiurfinder/server",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "db:deploy": "npm run prisma:deploy --workspace @shiurfinder/server"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.6.3"
+  }
+}
