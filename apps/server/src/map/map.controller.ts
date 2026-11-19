@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, UsePipes } from '@nestjs/common';
-import type { MapSearchResult, ShulTodayResult } from '@shiurfinder/shared';
+import type { FilterOptions, MapSearchResult, ShulTodayResult } from '@shiurfinder/shared';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import {
   mapSearchSchema,
@@ -26,6 +26,12 @@ export class MapController {
   @UsePipes(new ZodValidationPipe(mapSearchSchema))
   search(@Query() query: MapSearchDto): Promise<MapSearchResult> {
     return this.mapService.search(query);
+  }
+
+  /** FR-8: what the Filters panel can offer. GET /map/filters */
+  @Get('filters')
+  filters(): Promise<FilterOptions> {
+    return this.mapService.filterOptions();
   }
 
   /** UC-1 steps 10-11. GET /map/shul/:id/today?lat=&lng= */

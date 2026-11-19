@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 export interface SearchLocation {
   lat: number;
@@ -14,7 +14,8 @@ export const DEFAULT_LOCATION: SearchLocation = {
   label: 'Teaneck, NJ',
 };
 
-type LocationState = 'idle' | 'asking' | 'granted' | 'denied' | 'unavailable';
+/** 'typed' = the user picked an address; takes precedence over a later denial. */
+type LocationState = 'idle' | 'asking' | 'granted' | 'typed' | 'denied' | 'unavailable';
 
 /**
  * UC-1 step 3: the user allows location access, or types an address.
@@ -26,11 +27,12 @@ type LocationState = 'idle' | 'asking' | 'granted' | 'denied' | 'unavailable';
 export function useSearchLocation() {
   const [location, setLocation] = useState<SearchLocation | null>(null);
   const [state, setState] = useState<LocationState>('idle');
+  const hasTypedRef = useRef(false);
 
   const useBrowserLocation = useCallback(() => {
     if (!('geolocation' in navigator)) {
       setState('unavailable');
-      setLocation(DEFAULT_LOCATION);
+      setLocation((current) => current ?? DEFAULT_LOCATION);
       return;
     }
 
@@ -47,8 +49,9 @@ export function useSearchLocation() {
       () => {
         // Denied or timed out: fall back to the default area and let them type
         // an address instead (UI Design, "With no location" screen state).
-        setState('denied');
-        setLocation(DEFAULT_LOCATION);
+        // A point the user already typed is kept rather than thrown away.
+        setState(hasTypedRef.current ? 'typed' : 'denied');
+        setLocation((current) => current ?? DEFAULT_LOCATION);
       },
       { timeout: 8000, maximumAge: 60_000 },
     );
@@ -56,8 +59,9 @@ export function useSearchLocation() {
 
   /** Used by the address box once Google Places returns a chosen place. */
   const setTypedLocation = useCallback((next: SearchLocation) => {
+    hasTypedRef.current = true;
     setLocation(next);
-    setState('granted');
+    setState('typed');
   }, []);
 
   return { location, state, useBrowserLocation, setTypedLocation };

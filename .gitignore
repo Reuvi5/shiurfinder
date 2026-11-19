@@ -26,3 +26,4 @@ apps/server/prisma/*.db-journal
 # vite
 apps/web/.vite/
 apps/web/dist/
+*.tsbuildinfo

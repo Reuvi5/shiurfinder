@@ -106,9 +106,13 @@ the column but can't read or filter it, so every distance query is raw SQL in
 this backwards puts Teaneck in the Indian Ocean and the query silently returns
 nothing.
 
-**Times are stored UTC, displayed New York.** `Occurrence.startsAt` is UTC. Any
-query that filters on day-of-week or time-of-day converts first:
-`o."startsAt" AT TIME ZONE 'America/New_York'`.
+**Times are stored UTC, displayed New York.** `Occurrence.startsAt` is UTC, in a
+`TIMESTAMP` column *without* time zone. Any query that filters on day-of-week or
+time-of-day converts in two steps — say it's UTC, then convert to New York:
+`(o."startsAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York'`.
+`map.repository.ts` has this as `STARTS_AT_NY`; use that. The one-step
+`o."startsAt" AT TIME ZONE 'America/New_York'` looks right but shifts every time
+by the UTC offset the wrong way, so a 10am shiur shows up as an evening one.
 
 ## How we work
 

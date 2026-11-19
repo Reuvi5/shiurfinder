@@ -16,10 +16,24 @@ export interface MapSearchQuery {
   q?: string;
   topic?: string;
   language?: string;
+  audience?: string;
   /** 0 = Sunday */
   dayOfWeek?: number;
   /** "HH:mm" — only shiurim starting at or after this time of day */
   afterTime?: string;
+  /** "HH:mm" — only shiurim starting before this time of day */
+  beforeTime?: string;
+}
+
+/**
+ * GET /map/filters response: the choices the Filters panel offers (FR-8).
+ * Only values that at least one approved shul's shiur actually uses, so no
+ * chip can lead to an empty map for a reason the user can't see.
+ */
+export interface FilterOptions {
+  topics: string[];
+  languages: string[];
+  audiences: string[];
 }
 
 /** One pin on the map: one shul that has upcoming shiurim. */
