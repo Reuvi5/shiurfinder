@@ -5,6 +5,7 @@ import type { MapSearchDto } from './dto/map-search.dto';
 import {
   MAP_WINDOW_DAYS,
   METERS_PER_MILE,
+  type FilterOptionRow,
   type ListRow,
   type PinRow,
   type MapRepositoryPort,
@@ -12,6 +13,18 @@ import {
 
 const sql = Prisma.sql;
 const EMPTY = Prisma.empty;
+
+/**
+ * An occurrence's start as New York wall-clock time, for day and time-of-day
+ * filters.
+ *
+ * "startsAt" is TIMESTAMP *without* time zone holding UTC. Applying
+ * AT TIME ZONE 'America/New_York' straight to that treats the value as if it
+ * were already New York time and shifts it the wrong way (a 10am shiur came out
+ * as 3pm). So: first say it's UTC (giving a timestamptz), then convert that to
+ * New York (giving a plain New York timestamp).
+ */
+const STARTS_AT_NY = sql`((o."startsAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York')`;
 
 /**
  * Data access for the map. Knows SQL and nothing else — no labels, no badges,
@@ -42,6 +55,7 @@ export class MapRepository implements MapRepositoryPort {
       LEFT JOIN "Publisher" rav ON s."maggidShiurId" = rav.id
       LEFT JOIN "Topic"     t   ON s."topicId"    = t.id
       LEFT JOIN "Language"  l   ON s."languageId" = l.id
+      LEFT JOIN "Audience"  a   ON s."audienceId" = a.id
       WHERE ${this.baseWhere(dto, radiusMeters)}
       GROUP BY shul.id, shul."name", shul.location
       ORDER BY "distanceMiles" ASC
@@ -73,7 +87,7 @@ export class MapRepository implements MapRepositoryPort {
       ${this.listSelect(distance)}
       WHERE shul.id = ${publisherId}
         AND o."startsAt" >= NOW()
-        AND (o."startsAt" AT TIME ZONE 'America/New_York')::date
+        AND ${STARTS_AT_NY}::date
             = (NOW() AT TIME ZONE 'America/New_York')::date
       ORDER BY o."startsAt" ASC;
     `;
@@ -86,6 +100,37 @@ export class MapRepository implements MapRepositoryPort {
       where: { id: publisherId, approved: true, type: 'SHUL' },
       select: { id: true, name: true, address: true },
     });
+  }
+
+  /**
+   * The topics, languages and audiences the Filters panel can offer: only
+   * those used by an upcoming shiur at an approved shul, in each table's own
+   * `sort` order. Not limited by distance, so the choices don't jump around
+   * as the user moves the search point.
+   */
+  async findFilterOptions(): Promise<FilterOptionRow[]> {
+    return this.prisma.$queryRaw<FilterOptionRow[]>`
+      WITH live AS (
+        SELECT DISTINCT s."topicId", s."languageId", s."audienceId"
+        FROM "Shiur" s
+        JOIN "Publisher"  shul ON s."shulId" = shul.id
+        JOIN "Occurrence" o    ON o."shiurId" = s.id
+        WHERE shul."approved" = true
+          AND shul."type" = 'SHUL'
+          AND o."startsAt" >= NOW()
+          AND o."startsAt" <  NOW() + (${MAP_WINDOW_DAYS} * INTERVAL '1 day')
+          AND o."status" <> 'CANCELLED'
+      )
+      SELECT 'topic' AS "kind", t."name", t."sort" FROM "Topic" t
+        WHERE t.id IN (SELECT "topicId" FROM live)
+      UNION ALL
+      SELECT 'language', l."name", l."sort" FROM "Language" l
+        WHERE l.id IN (SELECT "languageId" FROM live)
+      UNION ALL
+      SELECT 'audience', a."name", a."sort" FROM "Audience" a
+        WHERE a.id IN (SELECT "audienceId" FROM live)
+      ORDER BY "kind", "sort", "name";
+    `;
   }
 
   // ---------------------------------------------------------------- fragments
@@ -124,6 +169,7 @@ export class MapRepository implements MapRepositoryPort {
       LEFT JOIN "Room"      ro2 ON o."roomId" = ro2.id
       LEFT JOIN "Topic"     t   ON s."topicId"    = t.id
       LEFT JOIN "Language"  l   ON s."languageId" = l.id
+      LEFT JOIN "Audience"  a   ON s."audienceId" = a.id
     `;
   }
 
@@ -146,8 +192,10 @@ export class MapRepository implements MapRepositoryPort {
       AND o."status" <> 'CANCELLED'
       ${this.topicClause(dto)}
       ${this.languageClause(dto)}
+      ${this.audienceClause(dto)}
       ${this.dayClause(dto)}
       ${this.afterTimeClause(dto)}
+      ${this.beforeTimeClause(dto)}
       ${this.textClause(dto)}
     `;
   }
@@ -160,18 +208,29 @@ export class MapRepository implements MapRepositoryPort {
     return dto.language ? sql`AND l."name" = ${dto.language}` : EMPTY;
   }
 
+  private audienceClause(dto: MapSearchDto) {
+    return dto.audience ? sql`AND a."name" = ${dto.audience}` : EMPTY;
+  }
+
   /** Day of week in New York time, 0 = Sunday, matching the filter chips. */
   private dayClause(dto: MapSearchDto) {
     return dto.dayOfWeek === undefined
       ? EMPTY
-      : sql`AND EXTRACT(DOW FROM (o."startsAt" AT TIME ZONE 'America/New_York')) = ${dto.dayOfWeek}`;
+      : sql`AND EXTRACT(DOW FROM ${STARTS_AT_NY}) = ${dto.dayOfWeek}`;
   }
 
   /** "I'm free after 8pm" — compares time of day, not date. */
   private afterTimeClause(dto: MapSearchDto) {
     return dto.afterTime === undefined
       ? EMPTY
-      : sql`AND (o."startsAt" AT TIME ZONE 'America/New_York')::time >= ${dto.afterTime}::time`;
+      : sql`AND ${STARTS_AT_NY}::time >= ${dto.afterTime}::time`;
+  }
+
+  /** The other end of a time period ("Morning" = before 12:00). Exclusive. */
+  private beforeTimeClause(dto: MapSearchDto) {
+    return dto.beforeTime === undefined
+      ? EMPTY
+      : sql`AND ${STARTS_AT_NY}::time < ${dto.beforeTime}::time`;
   }
 
   /**
@@ -185,6 +244,7 @@ export class MapRepository implements MapRepositoryPort {
       OR shul."name" ILIKE '%' || ${dto.q} || '%'
       OR rav."name"  ILIKE '%' || ${dto.q} || '%'
       OR t."name"    ILIKE '%' || ${dto.q} || '%'
+      OR s."description" ILIKE '%' || ${dto.q} || '%'
       OR similarity(s."title", ${dto.q}) > 0.25
       OR similarity(COALESCE(t."name", ''), ${dto.q}) > 0.35
     )`;

@@ -61,6 +61,14 @@ export interface MapRepositoryPort {
   findShiurim(dto: MapSearchDto, radiusMeters: number): Promise<ListRow[]>;
   findShulToday(publisherId: string, lat?: number, lng?: number): Promise<ListRow[]>;
   findApprovedShul(publisherId: string): Promise<ShulRow | null>;
+  findFilterOptions(): Promise<FilterOptionRow[]>;
+}
+
+/** One choice for the Filters panel, tagged with which list it belongs to. */
+export interface FilterOptionRow {
+  kind: 'topic' | 'language' | 'audience';
+  name: string;
+  sort: number;
 }
 
 /** Nest injection token for the port above. */

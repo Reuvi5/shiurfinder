@@ -1,16 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  APIProvider,
-  Map,
-  AdvancedMarker,
-  InfoWindow,
-  Pin,
-} from '@vis.gl/react-google-maps';
+import { Map, AdvancedMarker, InfoWindow, Pin } from '@vis.gl/react-google-maps';
 import type { MapPin } from '@shiurfinder/shared';
 import { fetchShulToday, messageFor } from '../api/client';
+import { HAS_MAPS_KEY } from '../lib/maps';
 import { ShiurRow } from './ShiurRow';
-
-const BROWSER_KEY = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY ?? '';
 
 interface MapViewProps {
   center: { lat: number; lng: number };
@@ -24,7 +17,7 @@ interface MapViewProps {
  * (FR-5); clicking one opens the card from UC-1 steps 10-11.
  */
 export function MapView({ center, pins, selectedPinId, onSelectPin }: MapViewProps) {
-  if (!BROWSER_KEY) {
+  if (!HAS_MAPS_KEY) {
     return (
       <div className="flex h-full items-center justify-center bg-slate-100 p-8 text-center dark:bg-slate-900">
         <p className="max-w-sm text-sm text-slate-600 dark:text-slate-400">
@@ -39,8 +32,9 @@ export function MapView({ center, pins, selectedPinId, onSelectPin }: MapViewPro
     );
   }
 
+  // The APIProvider lives in App, so the address box can use Places too.
   return (
-    <APIProvider apiKey={BROWSER_KEY}>
+    <>
       <Map
         className="h-full w-full"
         defaultCenter={center}
@@ -73,7 +67,7 @@ export function MapView({ center, pins, selectedPinId, onSelectPin }: MapViewPro
           />
         )}
       </Map>
-    </APIProvider>
+    </>
   );
 }
 

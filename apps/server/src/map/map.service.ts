@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type {
+  FilterOptions,
   MapPin,
   MapSearchResult,
   ShiurListItem,
@@ -88,6 +89,19 @@ export class MapService {
       lat: shiurim[0]?.lat ?? 0,
       lng: shiurim[0]?.lng ?? 0,
       shiurim,
+    };
+  }
+
+  /** FR-8: the choices behind the Filters panel's chips. */
+  async filterOptions(): Promise<FilterOptions> {
+    const rows = await this.repo.findFilterOptions();
+    const names = (kind: 'topic' | 'language' | 'audience') =>
+      rows.filter((row) => row.kind === kind).map((row) => row.name);
+
+    return {
+      topics: names('topic'),
+      languages: names('language'),
+      audiences: names('audience'),
     };
   }
 

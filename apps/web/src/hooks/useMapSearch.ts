@@ -16,12 +16,25 @@ const REFRESH_MS = 60_000;
 export function useMapSearch(
   location: { lat: number; lng: number } | null,
   filters: Omit<MapSearchQuery, 'lat' | 'lng'>,
+  options: {
+    /**
+     * false for the Filters panel's "Show N shiurim" preview: it only needs the
+     * count while the panel is open, not a refresh every minute. Same query key
+     * as the real search, so applying the filters reuses the cached answer.
+     */
+    live?: boolean;
+    enabled?: boolean;
+  } = {},
 ) {
+  const { live = true, enabled = true } = options;
+
   return useQuery<MapSearchResult>({
+    // Undefined filter values drop out of the key, so {} and {topic: undefined}
+    // share one cache entry.
     queryKey: ['map-search', location?.lat, location?.lng, filters],
     queryFn: () => fetchMapSearch({ lat: location!.lat, lng: location!.lng, ...filters }),
-    enabled: location !== null,
-    refetchInterval: REFRESH_MS,
+    enabled: enabled && location !== null,
+    refetchInterval: live ? REFRESH_MS : false,
     // Keeps the last results on screen while a new search runs, so changing a
     // filter doesn't blank the panel (SDD, Server error alternate flow).
     placeholderData: (previous) => previous,

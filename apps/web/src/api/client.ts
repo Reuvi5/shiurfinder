@@ -1,5 +1,6 @@
 import type {
   ApiError,
+  FilterOptions,
   MapSearchQuery,
   MapSearchResult,
   ShulTodayResult,
@@ -74,6 +75,11 @@ async function get<T>(path: string, params: Record<string, unknown>): Promise<T>
 /** UC-1 steps 5-7. */
 export function fetchMapSearch(query: MapSearchQuery): Promise<MapSearchResult> {
   return get<MapSearchResult>('/map/search', { ...query });
+}
+
+/** FR-8: the choices the Filters panel offers. */
+export function fetchFilterOptions(): Promise<FilterOptions> {
+  return get<FilterOptions>('/map/filters', {});
 }
 
 /** UC-1 steps 10-11. */

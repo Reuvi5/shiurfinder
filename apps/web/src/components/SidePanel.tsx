@@ -1,45 +1,103 @@
 import { useState } from 'react';
-import type { MapSearchResult, ShiurListItem } from '@shiurfinder/shared';
+import type { MapSearchQuery, MapSearchResult, ShiurListItem } from '@shiurfinder/shared';
+import type { SearchLocation } from '../hooks/useSearchLocation';
+import { NO_FILTERS, countActive, describe, shiurimCount, type Filters } from '../lib/filters';
+import { FilterPanel } from './FilterPanel';
+import { LocationSearch } from './LocationSearch';
 import { ShiurRow } from './ShiurRow';
 
 type Tab = 'featured' | 'weekly';
 
+const DISTANCES = [2, 5, 10, 25] as const;
+
 interface SidePanelProps {
   locationLabel: string;
+  /** The point searches are measured from; null until we have one. */
+  location: { lat: number; lng: number } | null;
+  /** Map centre, used to bias address suggestions when there's no location yet. */
+  near: { lat: number; lng: number };
+  /** True when location is off and nothing has been typed — UI Design "no location" state. */
+  needsLocation: boolean;
+  locating: boolean;
+  onPickLocation: (location: SearchLocation) => void;
+  onUseMyLocation: () => void;
+
   radiusMiles: number;
   query: string;
   onQueryChange: (next: string) => void;
   onRadiusChange: (next: number) => void;
+
+  filters: Filters;
+  onFiltersChange: (next: Filters) => void;
+  /** Distance + text, for the Filters panel's live count. */
+  baseQuery: Omit<MapSearchQuery, 'lat' | 'lng'>;
+
   data: MapSearchResult | undefined;
   isLoading: boolean;
+  isFetching: boolean;
   errorMessage: string | null;
   onSelectShiur: (item: ShiurListItem) => void;
 }
 
 /**
  * The left panel of the map home screen (FR-5): search box, location line,
- * then the Featured and Weekly tabs.
+ * filters, then the Featured and Weekly tabs.
  *
  * Takes its data as props rather than fetching its own — the map and this
  * panel must always be showing the same search, and the only way to guarantee
- * that is for one query to feed both.
+ * that is for one query to feed both. (The Filters panel's preview count is
+ * the one exception; see FilterPanel.)
  */
-export function SidePanel({
-  locationLabel,
-  radiusMiles,
-  query,
-  onQueryChange,
-  onRadiusChange,
-  data,
-  isLoading,
-  errorMessage,
-  onSelectShiur,
-}: SidePanelProps) {
+export function SidePanel(props: SidePanelProps) {
+  const {
+    locationLabel,
+    location,
+    near,
+    needsLocation,
+    locating,
+    onPickLocation,
+    onUseMyLocation,
+    radiusMiles,
+    query,
+    onQueryChange,
+    onRadiusChange,
+    filters,
+    onFiltersChange,
+    baseQuery,
+    data,
+    isLoading,
+    isFetching,
+    errorMessage,
+    onSelectShiur,
+  } = props;
+
   const [tab, setTab] = useState<Tab>('weekly');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   const items = data ? (tab === 'featured' ? data.featured : data.weekly) : [];
+  const activeCount = countActive(filters);
+  const chips = describe(filters);
+  const nextDistance = DISTANCES.find((d) => d > radiusMiles);
 
   return (
-    <aside className="flex h-full w-full flex-col border-r border-slate-200 bg-white md:w-[400px] dark:border-slate-800 dark:bg-slate-950">
+    <aside className="relative flex h-full w-full flex-col border-r border-slate-200 bg-white md:w-[400px] dark:border-slate-800 dark:bg-slate-950">
+      {filtersOpen && (
+        // Covers the panel rather than the map, so the user can still see the
+        // pins they're narrowing down.
+        <div className="absolute inset-0 z-30 bg-white dark:bg-slate-950">
+          <FilterPanel
+            applied={filters}
+            location={location}
+            base={baseQuery}
+            onClose={() => setFiltersOpen(false)}
+            onApply={(next) => {
+              onFiltersChange(next);
+              setFiltersOpen(false);
+            }}
+          />
+        </div>
+      )}
+
       <header className="space-y-3 border-b border-slate-200 p-4 dark:border-slate-800">
         <h1 className="text-lg font-semibold">ShiurFinder</h1>
 
@@ -48,26 +106,74 @@ export function SidePanel({
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
           placeholder="Search shiurim, shuls, maggidei shiur"
+          aria-label="Search shiurim"
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:focus:border-slate-400"
         />
 
-        <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-          <span>Near: {locationLabel}</span>
-          <label className="flex items-center gap-1">
-            <span className="sr-only">Distance</span>
-            <select
-              value={radiusMiles}
-              onChange={(event) => onRadiusChange(Number(event.target.value))}
-              className="rounded border border-slate-300 bg-transparent px-1 py-0.5 dark:border-slate-700"
+        <LocationSearch
+          near={location ?? near}
+          onSelect={onPickLocation}
+          onUseMyLocation={onUseMyLocation}
+          locating={locating}
+        />
+
+        <div className="flex items-center justify-between gap-2 text-sm text-slate-600 dark:text-slate-400">
+          <span className="truncate" title={locationLabel}>
+            Near: {locationLabel}
+          </span>
+          <div className="flex shrink-0 items-center gap-2">
+            <label className="flex items-center gap-1">
+              <span className="sr-only">Distance</span>
+              <select
+                value={radiusMiles}
+                onChange={(event) => onRadiusChange(Number(event.target.value))}
+                className="rounded border border-slate-300 bg-transparent px-1 py-0.5 dark:border-slate-700"
+              >
+                {DISTANCES.map((miles) => (
+                  <option key={miles} value={miles}>
+                    {miles} mi
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(true)}
+              aria-haspopup="dialog"
+              className={`rounded-md border px-2.5 py-0.5 font-medium transition ${
+                activeCount > 0
+                  ? 'border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-900'
+              }`}
             >
-              {[2, 5, 10, 25].map((miles) => (
-                <option key={miles} value={miles}>
-                  {miles} mi
-                </option>
-              ))}
-            </select>
-          </label>
+              Filters{activeCount > 0 && ` · ${activeCount}`}
+            </button>
+          </div>
         </div>
+
+        {chips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {chips.map((chip) => (
+              <button
+                key={chip.key}
+                type="button"
+                onClick={() => onFiltersChange({ ...filters, [chip.key]: undefined })}
+                aria-label={`Remove ${chip.label} filter`}
+                className="flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                {chip.label}
+                <span aria-hidden="true">×</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => onFiltersChange(NO_FILTERS)}
+              className="text-xs font-medium text-sky-700 underline dark:text-sky-400"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
 
         <nav className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-900">
           <TabButton active={tab === 'weekly'} onClick={() => setTab('weekly')}>
@@ -77,9 +183,24 @@ export function SidePanel({
             Featured {data ? `(${data.featured.length})` : ''}
           </TabButton>
         </nav>
+
+        {/* FR-8 match count; aria-live so screen readers hear it change. */}
+        {data && (
+          <p aria-live="polite" className="text-xs text-slate-500">
+            {shiurimCount(data.totalCount)} within {data.radiusMiles} mi
+            {isFetching && ' · updating…'}
+          </p>
+        )}
       </header>
 
       <div className="flex-1 space-y-2 overflow-y-auto p-4">
+        {needsLocation && (
+          <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+            Location is off, so this is showing a default area. Type an address or zip code above,
+            or allow location access, to see shiurim near you.
+          </div>
+        )}
+
         {errorMessage && (
           <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
             {errorMessage}
@@ -92,17 +213,30 @@ export function SidePanel({
         {data && items.length === 0 && !isLoading && (
           <div className="rounded-lg border border-dashed border-slate-300 p-6 text-center dark:border-slate-700">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              No shiurim within {radiusMiles} mi
+              {activeCount > 0
+                ? `No shiurim match these filters within ${radiusMiles} mi`
+                : `No shiurim within ${radiusMiles} mi`}
             </p>
-            {radiusMiles < 25 && (
-              <button
-                type="button"
-                onClick={() => onRadiusChange(radiusMiles === 2 ? 5 : radiusMiles === 5 ? 10 : 25)}
-                className="mt-2 text-sm font-medium text-sky-700 underline dark:text-sky-400"
-              >
-                Try a larger distance
-              </button>
-            )}
+            <div className="mt-2 flex justify-center gap-4">
+              {nextDistance && (
+                <button
+                  type="button"
+                  onClick={() => onRadiusChange(nextDistance)}
+                  className="text-sm font-medium text-sky-700 underline dark:text-sky-400"
+                >
+                  Try {nextDistance} mi
+                </button>
+              )}
+              {activeCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onFiltersChange(NO_FILTERS)}
+                  className="text-sm font-medium text-sky-700 underline dark:text-sky-400"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
           </div>
         )}
 
