@@ -5,151 +5,178 @@ shuls and maggidei shiur get one place to post and update their schedules.
 
 **MCON 357** — Oriel Zer, Reuvi Kupchik, Mattan Jackier
 
+**Built so far:** the map home screen (FR-5, UC-1): search by location, distance,
+text and filters; pins on a map; Weekly and Featured lists; a card for each shul.
+**Next:** create a shiur (FR-20), accounts, follows, notifications, moderation.
+
 ---
 
-## What's built
+## Folders
 
-**Tracer Bullet FR-5 — Find a shiur on the map (UC-1).** The map home screen,
-end to end: React website → NestJS server → PostGIS distance query → pins and
-the Featured/Weekly lists.
+```
+server/                  The API (NestJS). Runs on http://localhost:3000
+  prisma/                  schema.prisma (the tables), migrations/, seed.ts (demo data)
+  scripts/                 guard-local-db.js (stops commands that could wipe the shared DB)
+  src/
+    main.ts                starts the server
+    app.module.ts          the list of features the server is made of
+    map/                   the map feature: one folder per feature
+      map.controller.ts      routes: /map/search, /map/filters, /map/shul/:id/today
+      map.validation.ts      what a request is allowed to contain
+      map.service.ts         the logic: turns rows into what the website shows
+      map.queries.ts         the SQL
+      map.constants.ts       fixed numbers (radius, 7-day window, ...)
+    health/                /health: is the server up, can it reach the database
+    database/              the database connection (Prisma)
+    errors/                turns every error into { code, message }
+    validation/            checks requests against a Zod schema
 
-Still to come: FR-20 (create a shiur), accounts, follows, notifications,
-moderation.
+web/                     The website (React + Vite). Runs on http://localhost:5173
+  src/
+    main.tsx               starts the website
+    App.tsx                picks which screen to show
+    api.ts                 every call to the server
+    config.ts              settings from .env (server URL, Maps key)
+    features/
+      map/                 everything for the map screen
+        MapScreen.tsx        the screen; holds the search state
+        SidePanel.tsx        left half: search, filters, lists
+        MapView.tsx          right half: the Google map and pins
+        ShulCard.tsx         the popup when a pin is clicked
+        ...                  smaller pieces, hooks, helpers
+
+shared/
+  api-types.ts           the shapes the server and website send each other
+
+docs/                    SRS, design document, architecture notes
+```
+
+**Adding a feature?** Make a folder for it on both sides, e.g. `server/src/shiurim/`
+and `web/src/features/create-shiur/`, and copy the layout of `map/`. Then add the
+module to `server/src/app.module.ts` and the screen to `web/src/App.tsx`.
+[docs/architecture.md](docs/architecture.md) explains how the pieces fit.
 
 ## Stack
 
-| Part      | What we use                                           |
-| --------- | ----------------------------------------------------- |
-| Website   | React 18, TypeScript, Vite, TanStack Query, Tailwind  |
-| Map       | Google Maps Platform via `@vis.gl/react-google-maps`  |
-| Server    | NestJS, Zod                                            |
-| Database  | PostgreSQL 16 + PostGIS + pg_trgm (AWS RDS)           |
-| ORM       | Prisma — plus raw SQL for the distance queries         |
+| Part     | What we use                                                |
+| -------- | ---------------------------------------------------------- |
+| Website  | React 18, TypeScript, Vite, TanStack Query, Tailwind        |
+| Map      | Google Maps Platform via `@vis.gl/react-google-maps`        |
+| Server   | NestJS, Zod                                                 |
+| Database | PostgreSQL 16 + PostGIS + pg_trgm, hosted on AWS RDS        |
+| ORM      | Prisma for the tables and migrations; raw SQL for distance  |
 
-## Layout
-
-```
-apps/
-  server/          NestJS. One module per area of the app.
-    prisma/        schema.prisma, migrations, seed.ts
-    src/
-      map/         Search and Map — Tracer Bullet FR-5
-      prisma/      the only thing that opens a DB connection
-      common/      error filter, Zod pipe
-  web/             React website
-    src/
-      api/         the one place that calls the server
-      components/  MapView, SidePanel, ShiurRow
-      hooks/       useMapSearch, useSearchLocation
-packages/
-  shared/          Types both sides import, so the API contract can't drift
-```
+---
 
 ## Getting started
 
-You need **Node 20+**, **Docker Desktop**, and a **Google Maps API key**.
+You need **Node 20 or newer** (`node --version`). Get it from https://nodejs.org.
+On a Mac, `brew install node` also works. After installing, close and reopen your terminal.
 
 ```bash
 git clone https://github.com/Reuvi5/shiurfinder.git
 cd shiurfinder
-npm install
+npm install              # also generates the Prisma client
+cp .env.example .env
+```
 
-cp .env.example .env     # then fill in your Google Maps keys
-npm run db:up            # Postgres + PostGIS in Docker
-npm run db:migrate       # create the tables
-npm run db:seed          # 7 shuls around Teaneck with real-ish schedules
-npm run dev              # server :3000, website :5173
+Open `.env` and fill in:
+
+1. **`DATABASE_URL`**: use the shared AWS line. Ask Reuvi for the password.
+   Your IP address also has to be allowed through the AWS firewall: run
+   `curl -4 ifconfig.me` and send Reuvi the number.
+2. **The Google Maps keys** (see below). Optional: without them the map is
+   grey, but search, lists and filters still work.
+
+Then:
+
+```bash
+npm run dev              # server on :3000, website on :5173
 ```
 
 Open http://localhost:5173.
+
+### Checking it works
+
+```bash
+curl http://localhost:3000/health
+curl "http://localhost:3000/map/search?lat=40.8976&lng=-74.0204&radiusMiles=5"
+```
+
+`/health` should say `"db":"up"` and show a PostGIS version.
 
 ### Google Maps keys
 
 Two keys, from the [Google Cloud console](https://console.cloud.google.com/google/maps-apis):
 
-- `VITE_GOOGLE_MAPS_BROWSER_KEY` — enable **Maps JavaScript API** and **Places
-  API**. Restrict it by HTTP referrer (`localhost:5173`). This one ships to the
-  browser, so it is public by design — the referrer restriction is what protects it.
-- `GOOGLE_MAPS_SERVER_KEY` — enable **Geocoding API**. Restrict by IP. Server
-  only, never in a `VITE_` variable.
+- `VITE_GOOGLE_MAPS_BROWSER_KEY`: enable **Maps JavaScript API** and **Places API**,
+  and restrict it to the website `localhost:5173`. This one is sent to the browser,
+  so it's public; the restriction is what protects it.
+- `GOOGLE_MAPS_SERVER_KEY`: enable **Geocoding API** and restrict it by IP.
+  Server only. Never put it in a `VITE_` variable.
 
-### A note on `prisma generate`
+---
 
-Prisma downloads its query engine from `binaries.prisma.sh` on first run. If you
-are working through a restricted network you will see a 403 there — run it from
-a normal connection and the downloaded engine is cached afterwards.
+## Commands
 
-```bash
-npm run prisma:generate --workspace @shiurfinder/server
-```
+Run all of these from the repo root.
 
-Do this once after cloning, before `npm run db:migrate`.
+| Command              | What it does                                                  |
+| -------------------- | ------------------------------------------------------------- |
+| `npm run dev`        | Run the server and website, reloading on every save           |
+| `npm run typecheck`  | Check the TypeScript in all three folders                     |
+| `npm run build`      | Build the server and website for production                   |
+| `npm run db:seed`    | Add the demo shuls and shiurim (safe to run twice)            |
+| `npm run db:studio`  | Browse the database in your browser                           |
+| `npm run db:deploy`  | Apply migrations that already exist. Safe on the shared database |
+| `npm run db:migrate` | Create a new migration. **Local Docker only**, see below      |
+| `npm run db:reset`   | Wipe and rebuild the database. **Local Docker only**          |
 
-### Checking it works
+## Changing the database
 
-```bash
-curl "http://localhost:3000/health"
-curl "http://localhost:3000/map/search?lat=40.8976&lng=-74.0204&radiusMiles=5"
-```
+Day to day everyone uses the shared AWS database, and **you don't need Docker**.
 
-`/health` reports the PostGIS version, which is the quickest way to tell whether
-the extension actually loaded.
+You only need a local database when you **change `schema.prisma`**.
+`npm run db:migrate` compares the schema against a database it is allowed to wipe,
+so it refuses to run against AWS. To change the schema:
 
-## Database notes
+1. Install Docker Desktop, then `npm run db:up` (starts Postgres + PostGIS locally).
+2. In `.env`, switch `DATABASE_URL` to the localhost line.
+3. Edit `server/prisma/schema.prisma`, then `npm run db:migrate`. This creates a
+   new folder in `server/prisma/migrations/`. Commit it.
+4. Switch `DATABASE_URL` back to AWS and run `npm run db:deploy` to apply it there.
 
-**PostGIS and Prisma.** Prisma has no geography type, so `Publisher.location` is
-declared `Unsupported("geography(Point, 4326)")`. Prisma creates and migrates
-the column but can't read or filter it, so every distance query is raw SQL in
-`map.repository.ts`. This is deliberate — see "Distance search" in the design doc.
+**Never run `npx prisma migrate dev` directly.** That skips the safety check and
+can delete everyone's data on the shared database.
 
-**Longitude comes first.** `ST_MakePoint(lng, lat)`, not `(lat, lng)`. Getting
-this backwards puts Teaneck in the Indian Ocean and the query silently returns
-nothing.
+## Things that will bite you
 
-**Times are stored UTC, displayed New York.** `Occurrence.startsAt` is UTC, in a
-`TIMESTAMP` column *without* time zone. Any query that filters on day-of-week or
-time-of-day converts in two steps — say it's UTC, then convert to New York:
-`(o."startsAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York'`.
-`map.repository.ts` has this as `STARTS_AT_NY`; use that. The one-step
-`o."startsAt" AT TIME ZONE 'America/New_York'` looks right but shifts every time
-by the UTC offset the wrong way, so a 10am shiur shows up as an evening one.
+- **The app hangs with no error.** Your IP address probably changed (home connections
+  do this). Run `curl -4 ifconfig.me` again and send Reuvi the new number.
+- **`EADDRINUSE`.** Something is still running on port 3000 or 5173, often an old
+  `npm run dev` in another terminal tab. Stop it with Ctrl+C.
+- **`prisma generate` fails with a 403.** Prisma downloads an engine on first install;
+  some networks block it. Run `npm install` once on a normal connection.
+- **Never commit `.env`.** It holds the database password. `.gitignore` covers it.
 
 ## How we work
 
-`main` is the integration branch. Nothing gets pushed to it directly.
+`main` is the integration branch. Nothing is pushed to it directly.
 
 ```bash
-git checkout -b feat/fr5-map-search    # one branch per requirement
-git commit -m "feat(map): radius search via PostGIS"
-git push -u origin feat/fr5-map-search
-# open a PR, one of the other two reviews it, then squash and merge
+git checkout -b feat/fr20-create-shiur     # one branch per requirement
+git commit -m "feat(shiurim): add create form"
+git push -u origin feat/fr20-create-shiur
+# open a PR; one of the other two reviews it; squash and merge
 ```
 
-Branch names: `feat/fr<N>-<short-name>`, `fix/<short-name>`, `chore/<short-name>`.
-
-Commit messages: `type(scope): what changed` — `feat`, `fix`, `refactor`,
-`chore`, `docs`. The log doubles as a changelog when we demo.
-
-**Everyone commits their own work under their own name.** The Nov 30 demo is
-partly graded on Git history showing all three of us.
-
-## Design principles
-
-The server is layered: **controller** (receives) → **service** (decides) →
-**repository** (stores). A controller holds no rules; a service holds no SQL.
-
-`MapService` depends on `MapRepositoryPort`, not on a concrete class, so the
-rules can be tested with a fake and the storage can change underneath.
-
-Filters compose. Each one (`topicClause`, `dayClause`, `textClause`) is its own
-method assembled by `baseWhere`, so adding a filter means adding a method rather
-than editing one long `WHERE`.
-
-Pins and lists share `baseWhere` on purpose. If they drifted you'd get a pin on
-the map with nothing behind it.
+- Branch names: `feat/fr<N>-<short-name>`, `fix/<short-name>`, `chore/<short-name>`
+- Commit messages: `type(scope): what changed`, where type is `feat`, `fix`, `refactor`, `chore` or `docs`
+- **Everyone commits their own work under their own name.** The demo is partly
+  graded on Git history showing all three of us.
 
 ## Documents
 
-The SRS and the Software Design Document are in `docs/`. When code and the
-design doc disagree, the **design doc wins** — update the code, or update the
-doc deliberately.
+In [docs/](docs/): the SRS, the Software Design Document, the database diagram, and
+[architecture.md](docs/architecture.md). When the code and the design doc disagree,
+the **design doc wins**: fix the code, or update the doc on purpose.
