@@ -3,7 +3,7 @@
 // choose which one to show.
 
 import { APIProvider } from '@vis.gl/react-google-maps';
-import { HAS_MAPS_KEY, MAPS_KEY } from './config';
+import { HAS_MAPS_KEY, MAPS_KEY } from './core/config';
 import { MapScreen } from './features/map/MapScreen';
 
 export default function App() {

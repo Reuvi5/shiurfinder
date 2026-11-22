@@ -6,9 +6,9 @@
 
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './database/database.module';
-import { HealthController } from './health/health.controller';
-import { MapModule } from './map/map.module';
+import { DatabaseModule } from './core/database/database.module';
+import { HealthController } from './features/health/health.controller';
+import { MapModule } from './features/map/map.module';
 
 @Module({
   imports: [

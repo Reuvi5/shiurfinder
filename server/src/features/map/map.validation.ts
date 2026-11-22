@@ -2,7 +2,7 @@
 //
 // Every value in a URL arrives as text, so `z.coerce.number()` turns "40.9"
 // into 40.9. Anything outside these rules is rejected with a 400 before the
-// controller runs (see validation/zod-validation.pipe.ts).
+// controller runs (see core/validation/zod-validation.pipe.ts).
 
 import { z } from 'zod';
 

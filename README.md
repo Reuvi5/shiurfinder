@@ -20,23 +20,26 @@ server/                  The API (NestJS). Runs on http://localhost:3000
   src/
     main.ts                starts the server
     app.module.ts          the list of features the server is made of
-    map/                   the map feature: one folder per feature
-      map.controller.ts      routes: /map/search, /map/filters, /map/shul/:id/today
-      map.validation.ts      what a request is allowed to contain
-      map.service.ts         the logic: turns rows into what the website shows
-      map.queries.ts         the SQL
-      map.constants.ts       fixed numbers (radius, 7-day window, ...)
-    health/                /health: is the server up, can it reach the database
-    database/              the database connection (Prisma)
-    errors/                turns every error into { code, message }
-    validation/            checks requests against a Zod schema
+    features/              one folder per feature (anything with routes)
+      map/                   the map feature
+        map.controller.ts      routes: /map/search, /map/filters, /map/shul/:id/today
+        map.validation.ts      what a request is allowed to contain
+        map.service.ts         the logic: turns rows into what the website shows
+        map.queries.ts         the SQL
+        map.constants.ts       fixed numbers (radius, 7-day window, ...)
+      health/                /health: is the server up, can it reach the database
+    core/                  code every feature uses
+      database/              the database connection (Prisma)
+      errors/                turns every error into { code, message }
+      validation/            checks requests against a Zod schema
 
 web/                     The website (React + Vite). Runs on http://localhost:5173
   src/
     main.tsx               starts the website
     App.tsx                picks which screen to show
-    api.ts                 every call to the server
-    config.ts              settings from .env (server URL, Maps key)
+    core/                  code every feature uses
+      api.ts                 every call to the server
+      config.ts              settings from .env (server URL, Maps key)
     features/
       map/                 everything for the map screen
         MapScreen.tsx        the screen; holds the search state
@@ -51,7 +54,7 @@ shared/
 docs/                    SRS, design document, architecture notes
 ```
 
-**Adding a feature?** Make a folder for it on both sides, e.g. `server/src/shiurim/`
+**Adding a feature?** Make a folder for it on both sides, e.g. `server/src/features/shiurim/`
 and `web/src/features/create-shiur/`, and copy the layout of `map/`. Then add the
 module to `server/src/app.module.ts` and the screen to `web/src/App.tsx`.
 [docs/architecture.md](docs/architecture.md) explains how the pieces fit.

@@ -3,7 +3,7 @@
 
 import { AdvancedMarker, Map, Pin } from '@vis.gl/react-google-maps';
 import type { MapPin } from '@shiurfinder/shared';
-import { HAS_MAPS_KEY } from '../../config';
+import { HAS_MAPS_KEY } from '../../core/config';
 import { ShulCard } from './ShulCard';
 
 interface MapViewProps {

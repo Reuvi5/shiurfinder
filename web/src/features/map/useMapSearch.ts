@@ -6,7 +6,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import type { MapSearchQuery, MapSearchResult } from '@shiurfinder/shared';
-import { fetchMapSearch } from '../../api';
+import { fetchMapSearch } from '../../core/api';
 
 /** Re-check the server for changes every minute. */
 const REFRESH_MS = 60_000;
