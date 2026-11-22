@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './core/database/database.module';
 import { HealthController } from './features/health/health.controller';
 import { MapModule } from './features/map/map.module';
+import { ShiurPageModule } from './features/shiur-page/shiur-page.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MapModule } from './features/map/map.module';
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['../.env', '.env'] }),
     DatabaseModule,
     MapModule,
+    ShiurPageModule,
   ],
   controllers: [HealthController],
 })

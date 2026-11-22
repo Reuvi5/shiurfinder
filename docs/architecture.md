@@ -19,7 +19,7 @@ compile instead of breaking at runtime.
 
 ## Server: one folder per feature, three layers per folder
 
-Each feature folder (`server/src/features/map/` today) has the same files:
+Each feature folder (`map/` and `shiur-page/` today) has the same files:
 
 | File                 | Its job                                                         | Should never     |
 | -------------------- | --------------------------------------------------------------- | ---------------- |
@@ -59,6 +59,21 @@ When a component is needed by two features (a generic button, say), move it to
 and passes the results to both `SidePanel` and `MapView`, so the pins and the list
 can't disagree. The only other search is FilterPanel's "Show N shiurim" preview,
 which shares the same cache.
+
+**The shiur popup (FR-9).** Clicking a shiur, in the side panel or in a shul's
+card on the map, opens `ShiurCard` (from `features/shiur-page/`) on the map,
+pointing at the shiur's building, and the map slides there. It takes the shul
+card's place, so there's only ever one popup. `MapScreen` only holds which
+shiur is open; the card fetches its own details from `/shiur-page/:occurrenceId`.
+The same details also have their own page at `/shiur/:id`, which is the link
+Share sends. The Hebrew date is worked out on the server with Node's built-in
+`Intl` Hebrew calendar, so there's no extra package.
+
+**The map is moved, not held.** `MapView` gives the map only a `defaultCenter`.
+Passing `center` would make it jump back to the search point on every
+re-render, so it could never move to a clicked shiur or stay where the user
+dragged it. Its small `MoveMap` component pans the map when the search point
+changes or a shiur is opened.
 
 ## Database notes
 

@@ -1,12 +1,13 @@
 // The popup that opens when a shul's pin is clicked: that shul's remaining
-// shiurim today, plus Directions and Follow buttons.
+// shiurim today, plus Directions and Follow buttons. Clicking one of the
+// shiurim opens its ShiurCard in this card's place (see MapView).
 //
 // It only fetches when it opens, so the map doesn't load today's schedule
 // for every shul in range when the user might not click any of them.
 
 import { useQuery } from '@tanstack/react-query';
 import { InfoWindow } from '@vis.gl/react-google-maps';
-import type { MapPin } from '@shiurfinder/shared';
+import type { MapPin, ShiurListItem } from '@shiurfinder/shared';
 import { messageFor } from '../../core/api';
 import { fetchShulToday } from './map.api';
 import { ShiurRow } from './ShiurRow';
@@ -15,10 +16,13 @@ export function ShulCard({
   pin,
   origin,
   onClose,
+  onSelectShiur,
 }: {
   pin: MapPin;
   origin: { lat: number; lng: number };
   onClose: () => void;
+  /** Opens the shiur popup (FR-9). */
+  onSelectShiur: (item: ShiurListItem) => void;
 }) {
   const { data, isLoading, error } = useQuery({
     queryKey: ['shul-today', pin.publisherId, origin.lat, origin.lng],
@@ -44,7 +48,7 @@ export function ShulCard({
 
         <div className="space-y-1.5">
           {data?.shiurim.map((item) => (
-            <ShiurRow key={item.occurrenceId} item={item} />
+            <ShiurRow key={item.occurrenceId} item={item} onSelect={() => onSelectShiur(item)} />
           ))}
         </div>
 
