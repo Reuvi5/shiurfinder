@@ -1,9 +1,12 @@
-# Local dev database.
-# Mirrors what we run on AWS RDS (Postgres 16 + PostGIS + pg_trgm) so that
-# the same migrations and the same raw SQL work in both places.
+# OPTIONAL local database. You only need this to change the schema;
+# day to day everyone uses the shared AWS database instead.
+# See README, "Changing the database".
+#
+# Same setup as AWS (Postgres 16 + PostGIS + pg_trgm), so the same
+# migrations and SQL work on both.
 #
 #   npm run db:up      start it
-#   npm run db:down    stop it
+#   npm run db:down    stop it (your data is kept)
 #
 services:
   db:

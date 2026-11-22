@@ -23,3 +23,4 @@
 - [ ] Runs locally (`npm run dev`)
 - [ ] `npm run typecheck` passes
 - [ ] Matches the design doc, or the doc was updated too
+- [ ] New schema change? Migration committed, and `npm run db:deploy` run on AWS

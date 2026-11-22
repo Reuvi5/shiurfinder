@@ -20,10 +20,10 @@ yarn-error.log*
 !.vscode/extensions.json
 
 # prisma
-apps/server/prisma/*.db
-apps/server/prisma/*.db-journal
+server/prisma/*.db
+server/prisma/*.db-journal
 
 # vite
-apps/web/.vite/
-apps/web/dist/
+web/.vite/
+web/dist/
 *.tsbuildinfo
