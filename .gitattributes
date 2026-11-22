@@ -1,0 +1,3 @@
+# Store every text file with the same line endings (LF), whether it was saved
+# on Windows or Mac, so Git never shows lines as changed when they aren't.
+* text=auto eol=lf

@@ -185,6 +185,9 @@ git push -u origin feat/fr20-create-shiur
   graded on Git history showing all three of us.
 - GitHub checks every PR (formatting, TypeScript, build). A red X means one failed;
   `npm run format` fixes formatting.
+- Two Git hooks run by themselves (`npm install` sets them up): before each commit,
+  Prettier formats the files you're committing; after each `git pull`, `npm install`
+  runs if the packages changed.
 - Team rules for working without clashes are in [CLAUDE.md](CLAUDE.md). Claude Code
   reads it automatically.
 
