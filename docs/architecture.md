@@ -61,19 +61,31 @@ can't disagree. The only other search is FilterPanel's "Show N shiurim" preview,
 which shares the same cache.
 
 **The shiur popup (FR-9).** Clicking a shiur, in the side panel or in a shul's
-card on the map, opens `ShiurCard` (from `features/shiur-page/`) on the map,
-pointing at the shiur's building, and the map slides there. It takes the shul
-card's place, so there's only ever one popup. `MapScreen` only holds which
-shiur is open; the card fetches its own details from `/shiur-page/:occurrenceId`.
-The same details also have their own page at `/shiur/:id`, which is the link
-Share sends. The Hebrew date is worked out on the server with Node's built-in
-`Intl` Hebrew calendar, so there's no extra package.
+card on the map, opens `ShiurCard` (from `features/shiur-page/`) just below the
+shiur's building. It takes the shul card's place, so there's only ever one
+popup. `MapScreen` only holds which shiur is open; the card fetches its own
+details from `/shiur-page/:occurrenceId`. The same details also have their own
+page at `/shiur/:id`, which is the link Share sends. The Hebrew date is worked
+out on the server with Node's built-in `Intl` Hebrew calendar, so there's no
+extra package.
+
+**Map popups open below or above their pin.** Both the shul card and the shiur
+popup use `components/MapPopup.tsx`, because Google's InfoWindow can only open
+above its point. The shul card always opens below. The shiur popup opens on
+the side away from the user's dot (above when the user is south of the shul),
+so it never covers it. The popup stops scrolls and drags inside it from
+reaching the map.
 
 **The map is moved, not held.** `MapView` gives the map only a `defaultCenter`.
 Passing `center` would make it jump back to the search point on every
 re-render, so it could never move to a clicked shiur or stay where the user
-dragged it. Its small `MoveMap` component pans the map when the search point
-changes or a shiur is opened.
+dragged it. Instead:
+
+- `MoveMap` pans to the search point when it changes.
+- `FocusMap` runs when a popup opens. For a shiur, it fits the user's blue dot
+  and the shul in view (no closer than street level) so the user sees how far
+  it is. With location off, there's no dot, so it just zooms to the shul. For
+  a shul pin, it only pans enough to fit the card.
 
 ## Database notes
 

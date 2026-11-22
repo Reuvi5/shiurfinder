@@ -44,6 +44,7 @@ web/                     The website (React + Vite). Runs on http://localhost:51
     core/                  code every feature uses
       api.ts                 sends requests to the server; error messages
       config.ts              settings from .env (server URL, Maps key)
+    components/            pieces several features use (MapPopup: a popup below a map pin)
     features/
       map/                 everything for the map screen
         MapScreen.tsx        the screen; holds the search state

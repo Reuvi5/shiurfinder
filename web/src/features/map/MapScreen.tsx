@@ -67,6 +67,16 @@ export function MapScreen() {
 
   const center = location ?? DEFAULT_LOCATION;
   const locationOff = state === 'denied' || state === 'unavailable';
+  // Only a real location gets the blue dot, never the default area.
+  const userLocation = state === 'granted' || state === 'typed' ? location : null;
+
+  /**
+   * A copy, so clicking the same shiur again still counts as a new click and
+   * the map moves back to it (FocusMap in MapView watches for a new object).
+   */
+  function openShiurPopup(item: ShiurListItem) {
+    setOpenShiur({ ...item });
+  }
 
   return (
     <div className="flex h-full flex-col md:flex-row">
@@ -100,18 +110,19 @@ export function MapScreen() {
         // map there, and opens the shiur popup at it.
         onSelectShiur={(item: ShiurListItem) => {
           setSelectedPinId(item.shul?.id ?? null);
-          setOpenShiur(item);
+          openShiurPopup(item);
         }}
       />
 
       <main className="h-[55vh] flex-1 md:h-full">
         <MapView
           center={center}
+          userLocation={userLocation}
           pins={data?.pins ?? []}
           selectedPinId={selectedPinId}
           onSelectPin={selectPin}
           openShiur={openShiur}
-          onSelectShiur={setOpenShiur}
+          onSelectShiur={openShiurPopup}
           onCloseShiur={() => selectPin(null)}
         />
       </main>
