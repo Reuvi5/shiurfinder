@@ -185,9 +185,11 @@ git push -u origin feat/fr20-create-shiur
   graded on Git history showing all three of us.
 - GitHub checks every PR (formatting, TypeScript, build). A red X means one failed;
   `npm run format` fixes formatting.
+- Team rules for working without clashes are in [CLAUDE.md](CLAUDE.md). Claude Code
+  reads it automatically.
 
 ## Documents
 
 In [docs/](docs/): the SRS, the Software Design Document, the database diagram, and
-[architecture.md](docs/architecture.md). When the code and the design doc disagree,
-the **design doc wins**: fix the code, or update the doc on purpose.
+[architecture.md](docs/architecture.md). The **design doc wins** over the SRS and over
+the code: when they disagree, fix the code, or update the doc on purpose.
