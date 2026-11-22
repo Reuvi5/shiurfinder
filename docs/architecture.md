@@ -53,7 +53,8 @@ several features live outside it:
 - `App.tsx`: loads Google Maps and the router.
 
 When a component is needed by two features (a generic button, say), move it to
-`web/src/components/`.
+`web/src/components/`. Today that's `ShiurRow`: one shiur in a list, used by the
+map and the shul, maggid shiur and shiur pages. Clicking it opens the shiur page.
 
 **One search feeds the whole map screen.** `MapScreen` runs `useMapSearch` once
 and passes the results to both `SidePanel` and `MapView`, so the pins and the list

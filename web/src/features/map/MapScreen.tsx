@@ -8,7 +8,7 @@
 //   ├── SidePanel       search box, address, distance, filters, Weekly/Featured lists
 //   │   ├── LocationSearch
 //   │   ├── FilterPanel
-//   │   └── ShiurRow    (one per shiur)
+//   │   └── ShiurRow    (one per shiur, from components/)
 //   └── MapView         the Google map with one pin per shul
 //       └── ShulCard    opens when a pin is clicked
 

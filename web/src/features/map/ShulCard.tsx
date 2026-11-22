@@ -9,7 +9,7 @@ import { InfoWindow } from '@vis.gl/react-google-maps';
 import type { MapPin } from '@shiurfinder/shared';
 import { messageFor } from '../../core/api';
 import { fetchShulToday } from './map.api';
-import { ShiurRow } from './ShiurRow';
+import { ShiurRow } from '../../components/ShiurRow';
 
 export function ShulCard({
   pin,
