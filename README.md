@@ -36,9 +36,10 @@ server/                  The API (NestJS). Runs on http://localhost:3000
 web/                     The website (React + Vite). Runs on http://localhost:5173
   src/
     main.tsx               starts the website
-    App.tsx                picks which screen to show
+    App.tsx                loads Google Maps and the router
+    routes.tsx             which page each web address shows
     core/                  code every feature uses
-      api.ts                 every call to the server
+      api.ts                 sends requests to the server; error messages
       config.ts              settings from .env (server URL, Maps key)
     features/
       map/                 everything for the map screen
@@ -46,17 +47,21 @@ web/                     The website (React + Vite). Runs on http://localhost:51
         SidePanel.tsx        left half: search, filters, lists
         MapView.tsx          right half: the Google map and pins
         ShulCard.tsx         the popup when a pin is clicked
+        map.api.ts           the map's calls to the server
         ...                  smaller pieces, hooks, helpers
 
-shared/
-  api-types.ts           the shapes the server and website send each other
+shared/                  the shapes the server and website send each other
+  common.ts                types several features use
+  map.ts                   the map's types (one file per feature)
+  index.ts                 lists every file above
 
 docs/                    SRS, design document, architecture notes
 ```
 
 **Adding a feature?** Make a folder for it on both sides, e.g. `server/src/features/shiurim/`
 and `web/src/features/create-shiur/`, and copy the layout of `map/`. Then add the
-module to `server/src/app.module.ts` and the screen to `web/src/App.tsx`.
+module to `server/src/app.module.ts`, the page to `web/src/routes.tsx`, and your
+types file to `shared/index.ts`.
 [docs/architecture.md](docs/architecture.md) explains how the pieces fit.
 
 ## Stack

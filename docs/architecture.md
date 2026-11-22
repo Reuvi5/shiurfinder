@@ -8,14 +8,14 @@ Read this before adding a feature. For setup and commands, see the [README](../R
 Browser (web/)                         Server (server/)                    Database (AWS RDS)
 ───────────────                        ────────────────                    ──────────────────
 MapScreen                              MapController   receives & checks
-  └ useMapSearch ─ core/api.ts ─ HTTP ─▶ └ MapService  decides
+  └ useMapSearch ─ map.api.ts ─ HTTP ─▶ └ MapService  decides
                                              └ MapQueries  SQL ──────────▶  Postgres + PostGIS
          ◀──────────── JSON ({ pins, weekly, featured, ... }) ──────────────
 ```
 
-The shapes of that JSON live in `shared/api-types.ts`. Both sides import them,
-so if one side changes a shape, the other side fails to compile instead of
-breaking at runtime.
+The shapes of that JSON live in `shared/`, one file per feature (e.g. `shared/map.ts`).
+Both sides import them, so if one side changes a shape, the other side fails to
+compile instead of breaking at runtime.
 
 ## Server: one folder per feature, three layers per folder
 
@@ -44,11 +44,13 @@ To add a feature, copy that layout, then add the new module to `imports` in
 ## Website: one folder per feature
 
 `web/src/features/map/` holds everything for the map screen: components, hooks
-and helpers. Only things used by several features live outside it:
+and helpers, including `map.api.ts`, its calls to the server. Only things used by
+several features live outside it:
 
-- `core/api.ts`: every call to the server. Add a `fetchX()` function here.
+- `core/api.ts`: `get()` for sending a request, and the error messages users see.
 - `core/config.ts`: values from `.env`.
-- `App.tsx`: picks which screen to show.
+- `routes.tsx`: which page each web address shows.
+- `App.tsx`: loads Google Maps and the router.
 
 When a component is needed by two features (a generic button, say), move it to
 `web/src/components/`.
