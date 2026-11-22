@@ -103,6 +103,8 @@ interface SeedWeekly {
   durationMinutes: number;
 }
 
+// One line per shiur on purpose, so these tables are easy to read.
+// prettier-ignore
 const WEEKLY_TEMPLATES: SeedWeekly[] = [
   { title: 'Daf Yomi', topic: 'Gemara', language: 'English', days: [0, 1, 2, 3, 4], time: '06:15', durationMinutes: 45 },
   { title: 'Night Seder Chavrusa Program', topic: 'Gemara', language: 'English', days: [1, 2, 3], time: '20:30', durationMinutes: 90 },
@@ -114,6 +116,7 @@ const WEEKLY_TEMPLATES: SeedWeekly[] = [
   { title: 'Tefillah B’iyun', topic: 'Tefillah', language: 'English', days: [0], time: '08:45', durationMinutes: 45 },
 ];
 
+// prettier-ignore
 const FEATURED_TEMPLATES = [
   { title: 'Guest Lecture: Living with the Parsha', topic: 'Parsha', language: 'English', inDays: 2, time: '20:00' },
   { title: 'Pre-Chanukah Halacha Shiur', topic: 'Moadim', language: 'English', inDays: 4, time: '19:30' },
@@ -196,7 +199,11 @@ async function main(): Promise<void> {
           name: seed.name,
           type: PublisherType.SHUL,
           address: seed.address,
-          city: seed.address.includes('Englewood') ? 'Englewood' : seed.address.includes('Paramus') ? 'Paramus' : 'Teaneck',
+          city: seed.address.includes('Englewood')
+            ? 'Englewood'
+            : seed.address.includes('Paramus')
+              ? 'Paramus'
+              : 'Teaneck',
           state: 'NJ',
           approved: true, // a moderator has verified these (NFR-4)
         },

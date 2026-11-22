@@ -60,7 +60,11 @@ export function FilterPanel({ applied, onApply, onClose, location, base }: Filte
       <div className="flex-1 space-y-5 overflow-y-auto p-4">
         <Group title="Day">
           {DAYS.map((day, index) => (
-            <Chip key={day} active={draft.dayOfWeek === index} onClick={() => toggle('dayOfWeek', index)}>
+            <Chip
+              key={day}
+              active={draft.dayOfWeek === index}
+              onClick={() => toggle('dayOfWeek', index)}
+            >
               {day}
             </Chip>
           ))}
@@ -87,9 +91,24 @@ export function FilterPanel({ applied, onApply, onClose, location, base }: Filte
           </p>
         )}
 
-        <OptionGroup title="Topic" values={options.data?.topics} selected={draft.topic} onPick={(v) => toggle('topic', v)} />
-        <OptionGroup title="Language" values={options.data?.languages} selected={draft.language} onPick={(v) => toggle('language', v)} />
-        <OptionGroup title="Audience" values={options.data?.audiences} selected={draft.audience} onPick={(v) => toggle('audience', v)} />
+        <OptionGroup
+          title="Topic"
+          values={options.data?.topics}
+          selected={draft.topic}
+          onPick={(v) => toggle('topic', v)}
+        />
+        <OptionGroup
+          title="Language"
+          values={options.data?.languages}
+          selected={draft.language}
+          onPick={(v) => toggle('language', v)}
+        />
+        <OptionGroup
+          title="Audience"
+          values={options.data?.audiences}
+          selected={draft.audience}
+          onPick={(v) => toggle('audience', v)}
+        />
       </div>
 
       <div className="flex items-center gap-3 border-t border-slate-200 p-4 dark:border-slate-800">
@@ -109,7 +128,9 @@ export function FilterPanel({ applied, onApply, onClose, location, base }: Filte
           className="flex-1 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
         >
           {count === undefined
-            ? counting ? 'Counting…' : 'Show shiurim'
+            ? counting
+              ? 'Counting…'
+              : 'Show shiurim'
             : `Show ${shiurimCount(count)}`}
         </button>
       </div>
@@ -146,7 +167,9 @@ function OptionGroup({
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <fieldset>
-      <legend className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</legend>
+      <legend className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        {title}
+      </legend>
       <div className="flex flex-wrap gap-1.5">{children}</div>
     </fieldset>
   );

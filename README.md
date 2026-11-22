@@ -128,6 +128,7 @@ Run all of these from the repo root.
 | -------------------- | ------------------------------------------------------------- |
 | `npm run dev`        | Run the server and website, reloading on every save           |
 | `npm run typecheck`  | Check the TypeScript in all three folders                     |
+| `npm run format`     | Tidy the code the same way for everyone (Prettier)            |
 | `npm run build`      | Build the server and website for production                   |
 | `npm run db:seed`    | Add the demo shuls and shiurim (safe to run twice)            |
 | `npm run db:studio`  | Browse the database in your browser                           |

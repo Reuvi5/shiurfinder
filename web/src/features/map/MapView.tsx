@@ -59,11 +59,7 @@ export function MapView({ center, pins, selectedPinId, onSelectPin }: MapViewPro
       ))}
 
       {selectedPin && (
-        <ShulCard
-          pin={selectedPin}
-          origin={center}
-          onClose={() => onSelectPin(null)}
-        />
+        <ShulCard pin={selectedPin} origin={center} onClose={() => onSelectPin(null)} />
       )}
     </Map>
   );
