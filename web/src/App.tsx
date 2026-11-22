@@ -1,20 +1,20 @@
-// The whole website. Right now it's one screen, the map.
-// When there are more pages (create a shiur, my account), this is where you
-// choose which one to show.
+// The whole website. The router (routes.tsx) picks which page to show from
+// the web address. To add a page, add it there, not here.
 
 import { APIProvider } from '@vis.gl/react-google-maps';
+import { RouterProvider } from '@tanstack/react-router';
 import { HAS_MAPS_KEY, MAPS_KEY } from './core/config';
-import { MapScreen } from './features/map/MapScreen';
+import { router } from './routes';
 
 export default function App() {
-  // APIProvider loads Google Maps once for the whole page, so the map and the
-  // address search box share it. Without a key we skip it; the screen still
-  // works, just without the map.
+  // APIProvider loads Google Maps once for the whole site, so every page can
+  // use it. It must stay outside the router. Without a key we skip it; the
+  // site still works, just without the map.
   return HAS_MAPS_KEY ? (
     <APIProvider apiKey={MAPS_KEY}>
-      <MapScreen />
+      <RouterProvider router={router} />
     </APIProvider>
   ) : (
-    <MapScreen />
+    <RouterProvider router={router} />
   );
 }
