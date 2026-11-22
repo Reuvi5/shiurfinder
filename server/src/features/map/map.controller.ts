@@ -6,7 +6,7 @@
 
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import type { FilterOptions, MapSearchResult, ShulTodayResult } from '@shiurfinder/shared';
-import { ZodValidationPipe } from '../validation/zod-validation.pipe';
+import { ZodValidationPipe } from '../../core/validation/zod-validation.pipe';
 import { MapService } from './map.service';
 import {
   mapSearchSchema,

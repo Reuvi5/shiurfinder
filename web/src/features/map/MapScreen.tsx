@@ -14,7 +14,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { ShiurListItem } from '@shiurfinder/shared';
-import { messageFor } from '../../api';
+import { messageFor } from '../../core/api';
 import { NO_FILTERS, toQuery, type Filters } from './filters';
 import { MapView } from './MapView';
 import { SidePanel } from './SidePanel';

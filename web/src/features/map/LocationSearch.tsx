@@ -11,7 +11,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { useMapsLibrary } from '@vis.gl/react-google-maps';
-import { HAS_MAPS_KEY } from '../../config';
+import { HAS_MAPS_KEY } from '../../core/config';
 import type { SearchLocation } from './useSearchLocation';
 
 interface LocationSearchProps {

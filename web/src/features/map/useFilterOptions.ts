@@ -3,7 +3,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import type { FilterOptions } from '@shiurfinder/shared';
-import { fetchFilterOptions } from '../../api';
+import { fetchFilterOptions } from '../../core/api';
 
 export function useFilterOptions() {
   return useQuery<FilterOptions>({

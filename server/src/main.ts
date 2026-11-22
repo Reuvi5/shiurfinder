@@ -4,7 +4,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { ErrorFilter } from './errors/error.filter';
+import { ErrorFilter } from './core/errors/error.filter';
 
 async function start(): Promise<void> {
   const app = await NestFactory.create(AppModule);

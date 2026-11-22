@@ -5,7 +5,7 @@
 // Uptime monitors ping this to keep the hosted server awake.
 
 import { Controller, Get } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 
 interface HealthResult {
   status: 'ok' | 'degraded';

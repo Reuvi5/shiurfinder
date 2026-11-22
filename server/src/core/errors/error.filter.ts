@@ -4,7 +4,7 @@
 // message: '...' })`, and the website receives
 //   404  { "code": "SHUL_NOT_FOUND", "message": "..." }
 //
-// The website shows its own wording for each `code` (see web/src/api.ts), so
+// The website shows its own wording for each `code` (see web/src/core/api.ts), so
 // `message` here is a fallback for developers, not what users read.
 
 import {

@@ -15,7 +15,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import { MAP_WINDOW_DAYS, METERS_PER_MILE } from './map.constants';
 import type { MapSearchInput } from './map.validation';
 

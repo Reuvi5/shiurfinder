@@ -8,7 +8,7 @@ Read this before adding a feature. For setup and commands, see the [README](../R
 Browser (web/)                         Server (server/)                    Database (AWS RDS)
 ───────────────                        ────────────────                    ──────────────────
 MapScreen                              MapController   receives & checks
-  └ useMapSearch ── api.ts ── HTTP ──▶   └ MapService  decides
+  └ useMapSearch ─ core/api.ts ─ HTTP ─▶ └ MapService  decides
                                              └ MapQueries  SQL ──────────▶  Postgres + PostGIS
          ◀──────────── JSON ({ pins, weekly, featured, ... }) ──────────────
 ```
@@ -19,7 +19,7 @@ breaking at runtime.
 
 ## Server: one folder per feature, three layers per folder
 
-Each feature folder (`server/src/map/` today) has the same files:
+Each feature folder (`server/src/features/map/` today) has the same files:
 
 | File                 | Its job                                                         | Should never     |
 | -------------------- | --------------------------------------------------------------- | ---------------- |
@@ -33,7 +33,7 @@ Each feature folder (`server/src/map/` today) has the same files:
 To add a feature, copy that layout, then add the new module to `imports` in
 `server/src/app.module.ts`.
 
-The folders outside features are used by every feature:
+`server/src/core/` holds what every feature uses:
 
 - `database/`: the one Prisma connection.
 - `errors/`: every error the server sends is `{ code, message }`. Throw a Nest
@@ -46,8 +46,8 @@ The folders outside features are used by every feature:
 `web/src/features/map/` holds everything for the map screen: components, hooks
 and helpers. Only things used by several features live outside it:
 
-- `api.ts`: every call to the server. Add a `fetchX()` function here.
-- `config.ts`: values from `.env`.
+- `core/api.ts`: every call to the server. Add a `fetchX()` function here.
+- `core/config.ts`: values from `.env`.
 - `App.tsx`: picks which screen to show.
 
 When a component is needed by two features (a generic button, say), move it to
