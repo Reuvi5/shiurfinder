@@ -1,26 +1,19 @@
-## What this does
+## What and why
 
-<!-- One or two sentences. -->
-
-## Requirement
-
-<!-- FR-5, FR-20, NFR-1… or "none" for chores. -->
+<!-- What changed and why. Keep it short, but include anything a reviewer needs. -->
 
 ## How to check it
 
-<!-- The exact steps a reviewer runs. e.g.
-1. npm run db:seed
-2. Open http://localhost:5173
-3. Set distance to 2 mi — Paramus should drop off the map
+<!-- The exact steps, e.g.
+1. npm install
+2. Open http://localhost:5173/shul/abc: the shul's name shows
 -->
 
-## Notes for the reviewer
+## Notes
 
-<!-- Anything you're unsure about, or chose deliberately. -->
+<!-- Anything unsure or chosen on purpose. Delete if none. -->
 
 ---
 
-- [ ] Runs locally (`npm run dev`)
-- [ ] `npm run typecheck` passes
-- [ ] Matches the design doc, or the doc was updated too
-- [ ] New schema change? Migration committed, and `npm run db:deploy` run on AWS
+- [ ] Docs updated (README, `docs/architecture.md`, CLAUDE.md) if this changes them.
+- [ ] Changes the database? Migration committed, and `npm run db:deploy` run on AWS.

@@ -183,6 +183,8 @@ git push -u origin feat/fr20-create-shiur
 - Commit messages: `type(scope): what changed`, where type is `feat`, `fix`, `refactor`, `chore` or `docs`
 - **Everyone commits their own work under their own name.** The demo is partly
   graded on Git history showing all three of us.
+- GitHub checks every PR (formatting, TypeScript, build). A red X means one failed;
+  `npm run format` fixes formatting.
 
 ## Documents
 
