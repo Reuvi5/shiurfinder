@@ -1,0 +1,26 @@
+# Runs on every PR: GitHub checks the code before anyone merges it.
+# A red X on the PR means one of these failed; click it to see which.
+
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Formatting (fix with npm run format)
+        run: npm run format:check
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Build
+        run: npm run build

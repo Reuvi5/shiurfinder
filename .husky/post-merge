@@ -1,0 +1,7 @@
+# Runs after every `git pull`: if the pull changed package-lock.json, installs
+# the new packages, so the app doesn't crash with "module not found".
+if git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD | grep -q '^package-lock.json$'; then
+  echo "package-lock.json changed, running npm install..."
+  # The second try is for networks with a filter (UNABLE_TO_GET_ISSUER_CERT_LOCALLY).
+  npm install || NODE_OPTIONS=--use-system-ca npm install
+fi

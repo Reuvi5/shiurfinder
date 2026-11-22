@@ -7,7 +7,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { InfoWindow } from '@vis.gl/react-google-maps';
 import type { MapPin } from '@shiurfinder/shared';
-import { fetchShulToday, messageFor } from '../../core/api';
+import { messageFor } from '../../core/api';
+import { fetchShulToday } from './map.api';
 import { ShiurRow } from './ShiurRow';
 
 export function ShulCard({

@@ -177,7 +177,9 @@ function PlacesSearch({ near, onSelect, onUseMyLocation, locating }: LocationSea
                   index === highlighted ? 'bg-slate-100 dark:bg-slate-800' : ''
                 }`}
               >
-                <span className="font-medium">{prediction.mainText?.text ?? prediction.text.text}</span>
+                <span className="font-medium">
+                  {prediction.mainText?.text ?? prediction.text.text}
+                </span>
                 {prediction.secondaryText && (
                   <span className="text-slate-500"> · {prediction.secondaryText.text}</span>
                 )}
@@ -224,7 +226,14 @@ function MyLocationButton({ onClick, busy }: { onClick: () => void; busy: boolea
       aria-label="Use my location"
       className="flex h-[34px] w-9 shrink-0 items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-900"
     >
-      <svg viewBox="0 0 24 24" className={`h-4 w-4 ${busy ? 'animate-pulse' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        className={`h-4 w-4 ${busy ? 'animate-pulse' : ''}`}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden="true"
+      >
         <circle cx="12" cy="12" r="3" />
         <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
         <circle cx="12" cy="12" r="7" />

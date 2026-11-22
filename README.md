@@ -36,9 +36,10 @@ server/                  The API (NestJS). Runs on http://localhost:3000
 web/                     The website (React + Vite). Runs on http://localhost:5173
   src/
     main.tsx               starts the website
-    App.tsx                picks which screen to show
+    App.tsx                loads Google Maps and the router
+    routes.tsx             which page each web address shows
     core/                  code every feature uses
-      api.ts                 every call to the server
+      api.ts                 sends requests to the server; error messages
       config.ts              settings from .env (server URL, Maps key)
     features/
       map/                 everything for the map screen
@@ -46,17 +47,21 @@ web/                     The website (React + Vite). Runs on http://localhost:51
         SidePanel.tsx        left half: search, filters, lists
         MapView.tsx          right half: the Google map and pins
         ShulCard.tsx         the popup when a pin is clicked
+        map.api.ts           the map's calls to the server
         ...                  smaller pieces, hooks, helpers
 
-shared/
-  api-types.ts           the shapes the server and website send each other
+shared/                  the shapes the server and website send each other
+  common.ts                types several features use
+  map.ts                   the map's types (one file per feature)
+  index.ts                 lists every file above
 
 docs/                    SRS, design document, architecture notes
 ```
 
 **Adding a feature?** Make a folder for it on both sides, e.g. `server/src/features/shiurim/`
 and `web/src/features/create-shiur/`, and copy the layout of `map/`. Then add the
-module to `server/src/app.module.ts` and the screen to `web/src/App.tsx`.
+module to `server/src/app.module.ts`, the page to `web/src/routes.tsx`, and your
+types file to `shared/index.ts`.
 [docs/architecture.md](docs/architecture.md) explains how the pieces fit.
 
 ## Stack
@@ -128,6 +133,7 @@ Run all of these from the repo root.
 | -------------------- | ------------------------------------------------------------- |
 | `npm run dev`        | Run the server and website, reloading on every save           |
 | `npm run typecheck`  | Check the TypeScript in all three folders                     |
+| `npm run format`     | Tidy the code the same way for everyone (Prettier)            |
 | `npm run build`      | Build the server and website for production                   |
 | `npm run db:seed`    | Add the demo shuls and shiurim (safe to run twice)            |
 | `npm run db:studio`  | Browse the database in your browser                           |
@@ -177,9 +183,16 @@ git push -u origin feat/fr20-create-shiur
 - Commit messages: `type(scope): what changed`, where type is `feat`, `fix`, `refactor`, `chore` or `docs`
 - **Everyone commits their own work under their own name.** The demo is partly
   graded on Git history showing all three of us.
+- GitHub checks every PR (formatting, TypeScript, build). A red X means one failed;
+  `npm run format` fixes formatting.
+- Two Git hooks run by themselves (`npm install` sets them up): before each commit,
+  Prettier formats the files you're committing; after each `git pull`, `npm install`
+  runs if the packages changed.
+- Team rules for working without clashes are in [CLAUDE.md](CLAUDE.md). Claude Code
+  reads it automatically.
 
 ## Documents
 
 In [docs/](docs/): the SRS, the Software Design Document, the database diagram, and
-[architecture.md](docs/architecture.md). When the code and the design doc disagree,
-the **design doc wins**: fix the code, or update the doc on purpose.
+[architecture.md](docs/architecture.md). The **design doc wins** over the SRS and over
+the code: when they disagree, fix the code, or update the doc on purpose.

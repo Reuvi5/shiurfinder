@@ -2,8 +2,8 @@
   "name": "@shiurfinder/shared",
   "version": "0.1.0",
   "private": true,
-  "main": "api-types.ts",
-  "types": "api-types.ts",
+  "main": "index.ts",
+  "types": "index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit"
   },

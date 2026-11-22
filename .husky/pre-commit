@@ -1,0 +1,3 @@
+# Runs before every commit: formats the files you're committing with Prettier,
+# so code is always formatted, even without the VS Code extension.
+npx lint-staged
