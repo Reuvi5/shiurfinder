@@ -52,8 +52,10 @@ export function countActive(filters: Filters): number {
 /** Short labels for the chips under the search box, each with its key so it can be removed. */
 export function describe(filters: Filters): { key: keyof Filters; label: string }[] {
   const out: { key: keyof Filters; label: string }[] = [];
-  if (filters.dayOfWeek !== undefined) out.push({ key: 'dayOfWeek', label: DAYS[filters.dayOfWeek] });
-  if (filters.timePeriod) out.push({ key: 'timePeriod', label: TIME_PERIODS[filters.timePeriod].label });
+  if (filters.dayOfWeek !== undefined)
+    out.push({ key: 'dayOfWeek', label: DAYS[filters.dayOfWeek] });
+  if (filters.timePeriod)
+    out.push({ key: 'timePeriod', label: TIME_PERIODS[filters.timePeriod].label });
   if (filters.topic) out.push({ key: 'topic', label: filters.topic });
   if (filters.language) out.push({ key: 'language', label: filters.language });
   if (filters.audience) out.push({ key: 'audience', label: filters.audience });

@@ -276,10 +276,7 @@ function SkeletonRows() {
   return (
     <>
       {[0, 1, 2, 3, 4].map((i) => (
-        <div
-          key={i}
-          className="h-[78px] animate-pulse rounded-lg bg-slate-100 dark:bg-slate-900"
-        />
+        <div key={i} className="h-[78px] animate-pulse rounded-lg bg-slate-100 dark:bg-slate-900" />
       ))}
     </>
   );
