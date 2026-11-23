@@ -7,6 +7,7 @@
 // Safe to run more than once: it skips anything that already exists.
 
 import { PrismaClient, PublisherType, ShiurKind } from '@prisma/client';
+import { nyTimeToUtc } from '../src/core/time/ny-time';
 
 const prisma = new PrismaClient();
 
@@ -123,30 +124,6 @@ const FEATURED_TEMPLATES = [
   { title: 'Scholar in Residence: Emunah in Hard Times', topic: 'Machshava', language: 'English', inDays: 5, time: '19:00' },
   { title: 'Women’s Rosh Chodesh Shiur', topic: 'Machshava', language: 'English', inDays: 1, time: '20:15' },
 ];
-
-/**
- * Turn a New York wall-clock time into a UTC Date.
- * Does the offset properly rather than hardcoding -5, so seeding still lines up
- * across a daylight-saving change.
- */
-function nyTimeToUtc(date: Date, hhmm: string): Date {
-  const [hours, minutes] = hhmm.split(':').map(Number);
-  const y = date.getFullYear();
-  const m = date.getMonth();
-  const d = date.getDate();
-
-  // Start from the naive UTC instant, then correct by New York's offset on that date.
-  const naive = Date.UTC(y, m, d, hours, minutes, 0, 0);
-  const offsetMinutes = nyOffsetMinutes(new Date(naive));
-  return new Date(naive + offsetMinutes * 60_000);
-}
-
-/** How far behind UTC New York is on a given instant, in minutes (300 or 240). */
-function nyOffsetMinutes(at: Date): number {
-  const utc = new Date(at.toLocaleString('en-US', { timeZone: 'UTC' }));
-  const ny = new Date(at.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-  return Math.round((utc.getTime() - ny.getTime()) / 60_000);
-}
 
 async function main(): Promise<void> {
   console.log('Seeding ShiurFinder…');
