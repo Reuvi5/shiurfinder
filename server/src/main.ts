@@ -4,14 +4,13 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { ErrorFilter } from './core/errors/error.filter';
+import { setUpApp } from './app.setup';
 
 async function start(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
-  // Every error the server sends back goes through ErrorFilter, so they all
-  // have the same { code, message } shape.
-  app.useGlobalFilters(new ErrorFilter());
+  // The settings the API tests get too (error format, ...).
+  setUpApp(app);
 
   // The website runs on a different port (5173) than the server, so the
   // browser needs permission to call us. WEB_ORIGIN can list several, comma separated.

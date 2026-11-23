@@ -168,6 +168,11 @@ Room, Shiur, Occurrence, Topic, Language and Audience are used so far.
   Postgres + PostGIS database, because the filters (distance, New York day and
   time, approved only) live in the SQL. `server/src/core/database/test-db.setup.ts`
   checks the database is local and brings its tables up to date first.
+- **API tests** (also `*.db.test.ts`) send real requests to the whole server
+  with `supertest`, to check the parts work together: validation, service, SQL
+  and the `{ code, message }` errors. `startTestApp()` in
+  `server/src/core/testing/test-app.ts` starts the server with the same
+  settings as `main.ts` (both use `app.setup.ts`).
 - Everything runs in UTC (`vitest.config.ts`), so a time shown in the computer's
   own time zone instead of New York fails a test.
 

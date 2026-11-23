@@ -33,8 +33,10 @@
     "@shiurfinder/shared": "*",
     "@types/express": "^5.0.0",
     "@types/node": "^22.9.0",
+    "@types/supertest": "^7.2.1",
     "dotenv-cli": "^7.4.2",
     "prisma": "^5.22.0",
+    "supertest": "^7.3.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   }
