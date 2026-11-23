@@ -21,6 +21,8 @@ export interface ShiurDetails {
   hebrewDate: string;
   /** null if the publisher didn't give one */
   lengthMinutes: number | null;
+  /** WEEKLY: the days it repeats on, 0 = Sunday. Empty for a featured shiur. */
+  daysOfWeek: number[];
   status: OccurrenceStatus;
   /** why it changed or was cancelled, if the publisher said */
   reason: string | null;

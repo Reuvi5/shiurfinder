@@ -45,6 +45,7 @@ function toDetails(row: DetailsRow): ShiurDetails {
     startsAt: startsAt.toISOString(),
     hebrewDate: hebrewDate(startsAt),
     lengthMinutes: lengthMinutes(row, startsAt),
+    daysOfWeek: row.kind === 'WEEKLY' ? row.daysOfWeek : [],
     status: row.status,
     reason: row.reason,
     topic: row.topic,

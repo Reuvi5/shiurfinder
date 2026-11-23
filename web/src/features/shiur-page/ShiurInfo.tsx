@@ -3,38 +3,54 @@
 // Display only: it gets a ShiurDetails and shows it. ShiurCard (on the map)
 // and ShiurPage (its own web address) both use it, so they always match.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ShiurDetails } from '@shiurfinder/shared';
 import {
+  calendarFile,
   directionsUrl,
   formatDate,
+  formatDays,
   formatPlace,
   formatTime,
   googleCalendarUrl,
   shiurPageUrl,
+  timing,
+  type Timing,
 } from './shiur-page.format';
+
+/** How often the badge re-checks the clock, so "in 20 min" counts down. */
+const TICK_MS = 30_000;
 
 export function ShiurInfo({ details }: { details: ShiurDetails }) {
   const place = formatPlace(details);
+  const days = formatDays(details.daysOfWeek);
+  const now = useNow();
+  const when = timing(details, now);
 
   return (
     <article className="space-y-4">
       {details.flyerUrl && <Flyer url={details.flyerUrl} title={details.title} />}
 
       <header>
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-          {details.kind === 'WEEKLY' ? 'Weekly shiur' : 'Featured shiur'}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            {details.kind === 'WEEKLY' ? 'Weekly shiur' : 'Featured shiur'}
+          </p>
+          {details.status !== 'CANCELLED' && <TimingBadge when={when} />}
+        </div>
         <h2 className="text-xl font-semibold leading-snug">{details.title}</h2>
         {details.maggidShiur && (
           <p className="text-slate-700 dark:text-slate-300">{details.maggidShiur.name}</p>
         )}
       </header>
 
-      <StatusNotice details={details} />
+      <StatusNotice details={details} when={when} />
 
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
-        <Fact label="When">{formatDate(details)}</Fact>
+        <Fact label="When">
+          {formatDate(details)}
+          {days && <span className="block text-xs text-slate-500">{days}</span>}
+        </Fact>
         <Fact label="Time">{formatTime(details)}</Fact>
         {place && <Fact label="Where">{place}</Fact>}
         {details.room && <Fact label="Room">{details.room}</Fact>}
@@ -60,6 +76,32 @@ export function ShiurInfo({ details }: { details: ShiurDetails }) {
 
 // ---------------------------------------------------------------- pieces
 
+/** The current time, updated every TICK_MS, so the badge stays right while the popup is open. */
+function useNow(): number {
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), TICK_MS);
+    return () => clearInterval(timer);
+  }, []);
+  return now;
+}
+
+/** "Starts in 20 min", "Now · 25 min left", or "Started" (length unknown). Nothing otherwise. */
+function TimingBadge({ when }: { when: Timing }) {
+  let text: string | null = null;
+  if (when.kind === 'soon') text = `Starts in ${when.minutes} min`;
+  if (when.kind === 'now') {
+    text = when.minutesLeft === null ? 'Started' : `Now · ${when.minutesLeft} min left`;
+  }
+  if (!text) return null;
+
+  return (
+    <span className="shrink-0 rounded bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+      {text}
+    </span>
+  );
+}
+
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <>
@@ -84,7 +126,7 @@ function Flyer({ url, title }: { url: string; title: string }) {
 }
 
 /** Cancelled, changed, reported, or already over. Nothing when it's on as planned. */
-function StatusNotice({ details }: { details: ShiurDetails }) {
+function StatusNotice({ details, when }: { details: ShiurDetails; when: Timing }) {
   const reason = details.reason ? ` ${details.reason}` : '';
 
   if (details.status === 'CANCELLED') {
@@ -96,8 +138,7 @@ function StatusNotice({ details }: { details: ShiurDetails }) {
   if (details.status === 'REPORTED') {
     return <Notice tone="amber">Reported as not happening, not confirmed yet.</Notice>;
   }
-  if (new Date(details.startsAt).getTime() < Date.now() - 90 * 60_000) {
-    // Same 90 minutes ShiurRow uses for "Now".
+  if (when.kind === 'over') {
     return <Notice tone="slate">This date has passed.</Notice>;
   }
   return null;
@@ -122,7 +163,7 @@ const SECONDARY =
 const DISABLED =
   'rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-400 dark:border-slate-800 dark:text-slate-600';
 
-/** Save, Add to Google Calendar, Directions, Share, Report (FR-9). */
+/** Save, the two calendar buttons, Directions, Share, Report (FR-9). */
 function Buttons({ details }: { details: ShiurDetails }) {
   const directions = directionsUrl(details);
 
@@ -140,6 +181,9 @@ function Buttons({ details }: { details: ShiurDetails }) {
       <a href={googleCalendarUrl(details)} target="_blank" rel="noreferrer" className={SECONDARY}>
         Add to Google Calendar
       </a>
+      <button type="button" onClick={() => downloadCalendarFile(details)} className={SECONDARY}>
+        Apple / Outlook
+      </button>
       {directions && (
         <a href={directions} target="_blank" rel="noreferrer" className={PRIMARY}>
           Directions
@@ -183,4 +227,18 @@ function ShareButton({ details }: { details: ShiurDetails }) {
       {copied ? 'Link copied' : 'Share'}
     </button>
   );
+}
+
+/**
+ * Saves the .ics file. Opening it adds the shiur in Apple Calendar or
+ * Outlook. Made in the browser, so no server call.
+ */
+function downloadCalendarFile(details: ShiurDetails) {
+  const file = new Blob([calendarFile(details)], { type: 'text/calendar' });
+  const url = URL.createObjectURL(file);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${details.title.replace(/[^\w ]+/g, '').trim() || 'shiur'}.ics`;
+  link.click();
+  URL.revokeObjectURL(url);
 }

@@ -21,6 +21,7 @@ export interface DetailsRow {
   startsAt: Date;
   endsAt: Date | null;
   durationMinutes: number | null;
+  daysOfWeek: number[];
   status: 'ON' | 'CHANGED' | 'REPORTED' | 'CANCELLED';
   reason: string | null;
   topic: string | null;
@@ -65,6 +66,7 @@ export class ShiurPageQueries {
         o."startsAt"                    AS "startsAt",
         o."endsAt"                      AS "endsAt",
         s."durationMinutes"             AS "durationMinutes",
+        s."daysOfWeek"                  AS "daysOfWeek",
         o."status"                      AS "status",
         o."reason"                      AS "reason",
         t."name"                        AS "topic",
