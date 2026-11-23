@@ -9,7 +9,11 @@ shuls and maggidei shiur get one place to post and update their schedules.
 text and filters; pins on a map; Weekly and Featured lists; a card for each shul.
 The shiur popup and page (FR-9): click any shiur for its full details, Hebrew
 date, and Add to Google Calendar, Directions and Share buttons.
-**Next:** create a shiur (FR-20), accounts, follows, notifications, moderation.
+Shul and maggid shiur pages (FR-10). Posting a shiur at `/portal` (FR-20): a form
+for a weekly or one-time shiur that shows up on the map right away. The shul, maggid
+shiur, room, topic and language can be picked from a list or typed in new; a new shul's
+address is picked from Google's suggestions so it gets a pin. No sign-in yet.
+**Next:** accounts (so only a shul's team can post for it), follows, notifications, moderation.
 
 ---
 
@@ -31,6 +35,7 @@ server/                  The API (NestJS). Runs on http://localhost:3000
         map.constants.ts       fixed numbers (radius, 7-day window, ...)
       shiur-page/            the shiur popup and page (FR-9): /shiur-page/:occurrenceId
       publishers/            shul and maggid shiur pages; route: /publishers/:id
+      portal/                posting a shiur (FR-20): /portal/options, POST /portal/shiurim
       health/                /health: is the server up, can it reach the database
     core/                  code every feature uses
       database/              the database connection (Prisma)
@@ -43,8 +48,8 @@ web/                     The website (React + Vite). Runs on http://localhost:51
     App.tsx                loads Google Maps and the router
     routes.tsx             which page each web address shows
     core/                  code every feature uses
-      api.ts                 sends requests to the server; error messages
-      config.ts              settings from .env (server URL, Maps key)
+      api.ts                 sends requests to the server (get, post); error messages
+      config.ts              settings from .env (server URL, Maps key, Map ID)
     components/            pieces several features use (ShiurRow: one shiur in a list;
                              MapPopup: a popup next to a map pin)
     features/
@@ -60,12 +65,14 @@ web/                     The website (React + Vite). Runs on http://localhost:51
         ShiurPage.tsx        the same details at /shiur/:id (where Share links go), with a small map
         ShiurInfo.tsx        the details and buttons both of them show
       publisher-page/      shul page (/shul/:id) and maggid shiur page (/maggid/:id)
+      publisher-portal/    the "Post a shiur" form at /portal (FR-20); Combobox: pick or type
 
 shared/                  the shapes the server and website send each other
   common.ts                types several features use
   map.ts                   the map's types (one file per feature)
   shiur-page.ts            the shiur popup's types
   publishers.ts            the shul and maggid shiur pages' types
+  portal.ts                the "Post a shiur" form's types
   index.ts                 lists every file above
 
 docs/                    SRS, design document, architecture notes
@@ -133,6 +140,8 @@ Two keys, from the [Google Cloud console](https://console.cloud.google.com/googl
 - `VITE_GOOGLE_MAPS_BROWSER_KEY`: enable **Maps JavaScript API** and **Places API**,
   and restrict it to the website `localhost:5173`. This one is sent to the browser,
   so it's public; the restriction is what protects it.
+- `VITE_GOOGLE_MAPS_MAP_ID`: the Map ID, already filled in `.env.example`. The pins
+  and popups need a real one: with a made-up ID the map loads but every pin is missing.
 - `GOOGLE_MAPS_SERVER_KEY`: enable **Geocoding API** and restrict it by IP.
   Server only. Never put it in a `VITE_` variable.
 

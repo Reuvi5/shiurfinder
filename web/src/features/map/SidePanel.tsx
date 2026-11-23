@@ -6,6 +6,7 @@
 // (The one exception is FilterPanel's live count, which runs its own preview search.)
 
 import { useLayoutEffect, useRef, useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import type { MapSearchQuery, MapSearchResult, ShiurListItem } from '@shiurfinder/shared';
 import { FilterPanel } from './FilterPanel';
 import { NO_FILTERS, countActive, describe, shiurimCount, type Filters } from './filters';
@@ -162,7 +163,16 @@ export function SidePanel({
       )}
 
       <header className="space-y-3 border-b border-slate-200 p-4 dark:border-slate-800">
-        <h1 className="text-lg font-semibold">ShiurFinder</h1>
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-lg font-semibold">ShiurFinder</h1>
+          {/* The publisher portal (FR-20). */}
+          <Link
+            to="/portal"
+            className="rounded-md border border-slate-300 px-2.5 py-1 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-900"
+          >
+            + Post a shiur
+          </Link>
+        </div>
 
         <input
           type="search"

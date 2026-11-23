@@ -19,7 +19,7 @@ compile instead of breaking at runtime.
 
 ## Server: one folder per feature, three layers per folder
 
-Each feature folder (`map/`, `shiur-page/` and `publishers/` today) has the same files:
+Each feature folder (`map/`, `shiur-page/`, `publishers/` and `portal/` today) has the same files:
 
 | File                 | Its job                                                         | Should never     |
 | -------------------- | --------------------------------------------------------------- | ---------------- |
@@ -47,8 +47,10 @@ To add a feature, copy that layout, then add the new module to `imports` in
 and helpers, including `map.api.ts`, its calls to the server. Only things used by
 several features live outside it:
 
-- `core/api.ts`: `get()` for sending a request, and the error messages users see.
-- `core/config.ts`: values from `.env`.
+- `core/api.ts`: `get()` and `post()` for sending a request, and the error messages users see.
+- `core/config.ts`: values from `.env`, including the Map ID. Pins and popups are
+  Advanced Markers, which only draw on a map with a real Map ID, so every `<Map>`
+  passes `mapId={MAP_ID}`.
 - `routes.tsx`: which page each web address shows.
 - `App.tsx`: loads Google Maps and the router.
 
@@ -93,6 +95,25 @@ dragged it. Instead:
   it is. With location off, there's no dot, so it just zooms to the shul. For
   a shul pin, it only pans enough to fit the card.
 
+**Posting a shiur (FR-20).** `/portal` shows `ShiurForm`. `GET /portal/options`
+fills its lists, and `POST /portal/shiurim` saves. The shul, maggid shiur, room,
+topic and language are `Combobox`es: pick from the list or type a new name. Each is
+sent as `{ id }` or `{ name }` (`PickOrNew` in `shared/portal.ts`). A typed name that
+matches an existing one, ignoring capitals, reuses it, so "gemara" doesn't add a
+second Gemara. Shuls are the exception, since two towns can each have a Beth Israel.
+A new shul also needs its address, picked with the map's `LocationSearch`, which
+gives it a point on the map.
+
+The server checks that picked ids exist and fit together (a picked room must be the
+shul's own). It then saves everything in one transaction: any new shul, maggid shiur,
+room, topic or language, then the shiur and its dates. A featured shiur gets one
+date; a weekly one gets 8 weeks of dates (the nightly job in the design doc will keep
+them topped up). The map reads the same tables, so the shiur is on it as soon as the
+request returns. The form then clears TanStack Query's cache so the map doesn't show
+old results. There's no sign-in yet, so new shuls and maggidei shiur are approved
+straight away. Once accounts are built, only the shul's team may post for it, and new
+ones wait for a moderator (NFR-4).
+
 ## Database notes
 
 **Why raw SQL.** A shul's location is a PostGIS `geography(Point, 4326)` column.
@@ -111,7 +132,8 @@ a `TIMESTAMP` column *without* a time zone. To filter by New York day or time, c
 (o."startsAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York'
 ```
 
-`map.queries.ts` has this as `STARTS_AT_NY`; use it. The one-step version
+`map.queries.ts` has this as `STARTS_AT_NY`; use it. Going the other way (a New York
+date and time the user typed, to UTC), `portal.queries.ts` has `nyMoment()`. The one-step version
 (`o."startsAt" AT TIME ZONE 'America/New_York'`) looks right but shifts every
 time the wrong way, so a 10am shiur shows up in the afternoon.
 

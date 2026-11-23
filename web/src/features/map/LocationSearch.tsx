@@ -18,8 +18,11 @@ interface LocationSearchProps {
   /** Biases suggestions toward where the user already is. */
   near: { lat: number; lng: number };
   onSelect: (location: SearchLocation) => void;
-  onUseMyLocation: () => void;
-  locating: boolean;
+  /** Leave out to hide the "use my location" button (the portal's new-shul address does). */
+  onUseMyLocation?: () => void;
+  locating?: boolean;
+  /** Placeholder text; defaults to "Address or zip code". */
+  placeholder?: string;
 }
 
 export function LocationSearch(props: LocationSearchProps) {
@@ -27,7 +30,13 @@ export function LocationSearch(props: LocationSearchProps) {
   return HAS_MAPS_KEY ? <PlacesSearch {...props} /> : <NoKeySearch {...props} />;
 }
 
-function PlacesSearch({ near, onSelect, onUseMyLocation, locating }: LocationSearchProps) {
+function PlacesSearch({
+  near,
+  onSelect,
+  onUseMyLocation,
+  locating = false,
+  placeholder = 'Address or zip code',
+}: LocationSearchProps) {
   const places = useMapsLibrary('places');
   const listId = useId();
 
@@ -146,7 +155,7 @@ function PlacesSearch({ near, onSelect, onUseMyLocation, locating }: LocationSea
           // Delay so a click on a suggestion lands before the list closes.
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={onKeyDown}
-          placeholder="Address or zip code"
+          placeholder={placeholder}
           autoComplete="off"
           className={`min-w-0 flex-1 rounded-lg border px-3 py-1.5 text-sm outline-none dark:bg-slate-900 ${
             notFound
@@ -154,13 +163,13 @@ function PlacesSearch({ near, onSelect, onUseMyLocation, locating }: LocationSea
               : 'border-slate-300 focus:border-slate-900 dark:border-slate-700 dark:focus:border-slate-400'
           }`}
         />
-        <MyLocationButton onClick={onUseMyLocation} busy={locating} />
+        {onUseMyLocation && <MyLocationButton onClick={onUseMyLocation} busy={locating} />}
 
         {showList && (
           <ul
             id={listId}
             role="listbox"
-            className="absolute left-0 right-11 top-full z-20 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900"
+            className={`absolute left-0 top-full ${onUseMyLocation ? 'right-11' : 'right-0'} z-20 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900`}
           >
             {suggestions.map((prediction, index) => (
               <li
@@ -200,7 +209,7 @@ function PlacesSearch({ near, onSelect, onUseMyLocation, locating }: LocationSea
 }
 
 /** Without a Maps key there's nothing to look an address up with. */
-function NoKeySearch({ onUseMyLocation, locating }: LocationSearchProps) {
+function NoKeySearch({ onUseMyLocation, locating = false }: LocationSearchProps) {
   return (
     <div className="flex gap-2">
       <input
@@ -210,7 +219,7 @@ function NoKeySearch({ onUseMyLocation, locating }: LocationSearchProps) {
         placeholder="Address search needs a Google Maps key"
         className="min-w-0 flex-1 cursor-not-allowed rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-400 dark:border-slate-800 dark:bg-slate-900"
       />
-      <MyLocationButton onClick={onUseMyLocation} busy={locating} />
+      {onUseMyLocation && <MyLocationButton onClick={onUseMyLocation} busy={locating} />}
     </div>
   );
 }

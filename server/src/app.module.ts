@@ -11,6 +11,7 @@ import { HealthController } from './features/health/health.controller';
 import { MapModule } from './features/map/map.module';
 import { ShiurPageModule } from './features/shiur-page/shiur-page.module';
 import { PublishersModule } from './features/publishers/publishers.module';
+import { PortalModule } from './features/portal/portal.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PublishersModule } from './features/publishers/publishers.module';
     MapModule,
     ShiurPageModule,
     PublishersModule,
+    PortalModule,
   ],
   controllers: [HealthController],
 })
