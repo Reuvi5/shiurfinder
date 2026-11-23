@@ -5,7 +5,7 @@
 // Google Maps is loaded once for the whole site, in App.tsx.
 
 import { AdvancedMarker, Map, Pin } from '@vis.gl/react-google-maps';
-import { HAS_MAPS_KEY } from '../../core/config';
+import { HAS_MAPS_KEY, MAP_ID } from '../../core/config';
 
 /** Close enough to see the streets around the building. */
 const ZOOM = 15;
@@ -25,7 +25,7 @@ export function ShiurMiniMap({ lat, lng, name }: { lat: number; lng: number; nam
         gestureHandling="cooperative"
         disableDefaultUI
         zoomControl
-        mapId="shiurfinder-map"
+        mapId={MAP_ID}
       >
         <AdvancedMarker position={{ lat, lng }} title={name}>
           <Pin background="#0369a1" borderColor="#0f172a" glyphColor="#ffffff" />

@@ -1,4 +1,4 @@
-// What every call from the website to the server uses: get() to send the
+// What every call from the website to the server uses: get() and post() to send a
 // request, and messageFor() to turn an error into words for the user.
 //
 // The calls themselves live in each feature's folder (e.g. features/map/map.api.ts),
@@ -24,6 +24,7 @@ const MESSAGES: Record<string, string> = {
   SHUL_NOT_FOUND: 'That shul could not be found.',
   SHIUR_NOT_FOUND: 'That shiur could not be found.',
   PUBLISHER_NOT_FOUND: 'That page could not be found.',
+  DATE_PASSED: 'That date and time have already passed. Pick a later one.',
   NOT_SIGNED_IN: 'Sign in to do that.',
   NO_PERMISSION: "You don't have permission to do that.",
   TOO_MANY_REQUESTS: 'Too many requests. Wait a moment and try again.',
@@ -61,6 +62,28 @@ export async function get<T>(path: string, params: Record<string, unknown> = {})
     // The server sends { code, message }. If the body isn't JSON, use a generic error.
     const body: Partial<ApiError> = await response.json().catch(() => ({}));
     throw new ApiRequestError(body.code ?? 'INTERNAL_ERROR', body.message ?? 'Request failed');
+  }
+
+  return (await response.json()) as T;
+}
+
+/** POST JSON to a path on the server and return the JSON reply. Errors work like get(). */
+export async function post<T>(path: string, body: unknown): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      credentials: 'include',
+    });
+  } catch {
+    throw new ApiRequestError('NETWORK', 'Could not reach the server.');
+  }
+
+  if (!response.ok) {
+    const error: Partial<ApiError> = await response.json().catch(() => ({}));
+    throw new ApiRequestError(error.code ?? 'INTERNAL_ERROR', error.message ?? 'Request failed');
   }
 
   return (await response.json()) as T;
