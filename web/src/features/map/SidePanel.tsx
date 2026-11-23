@@ -5,7 +5,7 @@
 // results in, so this panel and the map always show the same search.
 // (The one exception is FilterPanel's live count, which runs its own preview search.)
 
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { MapSearchQuery, MapSearchResult, ShiurListItem } from '@shiurfinder/shared';
 import { FilterPanel } from './FilterPanel';
 import { NO_FILTERS, countActive, describe, shiurimCount, type Filters } from './filters';
@@ -46,6 +46,13 @@ interface SidePanelProps {
   isFetching: boolean;
   errorMessage: string | null;
   onSelectShiur: (item: ShiurListItem) => void;
+  /**
+   * The shiur whose popup is open (FR-9). Its row is ringed, and the panel
+   * switches to its tab and scrolls to it.
+   */
+  openShiur: ShiurListItem | null;
+  /** The shul whose pin was clicked. With no shiur open, all its rows are ringed. */
+  selectedShulId: string | null;
 }
 
 export function SidePanel({
@@ -68,9 +75,66 @@ export function SidePanel({
   isFetching,
   errorMessage,
   onSelectShiur,
+  openShiur,
+  selectedShulId,
 }: SidePanelProps) {
   const [tab, setTab] = useState<Tab>('weekly');
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // ------------- following the map
+  // The rows the map is pointing at are ringed and scrolled to: the open
+  // shiur, or else every shiur at the clicked pin's shul. That can switch
+  // tabs; each tab remembers how far down it was scrolled, so switching back
+  // by hand returns to where the user was in that list.
+  const listRef = useRef<HTMLDivElement>(null);
+  const scrollTops = useRef<Record<Tab, number>>({ weekly: 0, featured: 0 });
+  /** What to do with the scroll once the new tab has drawn. */
+  const afterSwitch = useRef<'restore' | 'show-ringed' | null>(null);
+
+  /** Is this row one the map is pointing at? */
+  function isRinged(item: ShiurListItem): boolean {
+    if (openShiur) return item.occurrenceId === openShiur.occurrenceId;
+    return selectedShulId !== null && item.shul?.id === selectedShulId;
+  }
+
+  function changeTab(next: Tab, then: 'restore' | 'show-ringed') {
+    if (next === tab) return;
+    scrollTops.current[tab] = listRef.current?.scrollTop ?? 0;
+    afterSwitch.current = then;
+    setTab(next);
+  }
+
+  /** Scrolls the first ringed row into view, only as far as needed. */
+  function showRingedRow() {
+    listRef.current?.querySelector('[data-ringed]')?.scrollIntoView({ block: 'nearest' });
+  }
+
+  /** Shows the ringed rows: on this tab if it has any, otherwise on the other one. */
+  function goToRinged() {
+    if (!data) return;
+    const other: Tab = tab === 'weekly' ? 'featured' : 'weekly';
+    if (data[tab].some(isRinged)) showRingedRow();
+    else if (data[other].some(isRinged)) changeTab(other, 'show-ringed');
+    // In neither: a shiur from a pin's card can be missing from this list,
+    // because the card ignores the filters. Then we stay where we are.
+  }
+
+  // A shiur was opened (here or in a pin's card), or a pin was clicked.
+  // Only then, not every time the list refreshes.
+  useLayoutEffect(() => {
+    if (openShiur || selectedShulId) goToRinged();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openShiur, selectedShulId]);
+
+  // Runs after a tab switch has drawn the new list (useLayoutEffect, so
+  // before the user sees it at the wrong spot).
+  useLayoutEffect(() => {
+    const then = afterSwitch.current;
+    afterSwitch.current = null;
+    if (then === 'restore' && listRef.current) listRef.current.scrollTop = scrollTops.current[tab];
+    if (then === 'show-ringed') showRingedRow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
 
   const items = data ? (tab === 'featured' ? data.featured : data.weekly) : [];
   const activeCount = countActive(filters);
@@ -175,10 +239,10 @@ export function SidePanel({
         )}
 
         <nav className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-900">
-          <TabButton active={tab === 'weekly'} onClick={() => setTab('weekly')}>
+          <TabButton active={tab === 'weekly'} onClick={() => changeTab('weekly', 'restore')}>
             Weekly {data ? `(${data.weekly.length})` : ''}
           </TabButton>
-          <TabButton active={tab === 'featured'} onClick={() => setTab('featured')}>
+          <TabButton active={tab === 'featured'} onClick={() => changeTab('featured', 'restore')}>
             Featured {data ? `(${data.featured.length})` : ''}
           </TabButton>
         </nav>
@@ -192,7 +256,7 @@ export function SidePanel({
         )}
       </header>
 
-      <div className="flex-1 space-y-2 overflow-y-auto p-4">
+      <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto p-4">
         {needsLocation && (
           <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">
             Location is off, so this is showing a default area. Type an address or zip code above,
@@ -240,7 +304,15 @@ export function SidePanel({
         )}
 
         {items.map((item) => (
-          <ShiurRow key={item.occurrenceId} item={item} onSelect={() => onSelectShiur(item)} />
+          // The wrapper rings the row and marks it for showRingedRow, so
+          // ShiurRow itself doesn't change.
+          <div
+            key={item.occurrenceId}
+            data-ringed={isRinged(item) || undefined}
+            className={`rounded-lg ${isRinged(item) ? 'ring-2 ring-sky-600' : ''}`}
+          >
+            <ShiurRow item={item} onSelect={() => onSelectShiur(item)} />
+          </div>
         ))}
       </div>
     </aside>

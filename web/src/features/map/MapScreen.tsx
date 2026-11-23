@@ -112,6 +112,8 @@ export function MapScreen() {
           setSelectedPinId(item.shul?.id ?? null);
           openShiurPopup(item);
         }}
+        openShiur={openShiur}
+        selectedShulId={selectedPinId}
       />
 
       <main className="h-[55vh] flex-1 md:h-full">
