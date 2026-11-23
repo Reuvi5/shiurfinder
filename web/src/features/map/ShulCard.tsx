@@ -1,10 +1,11 @@
 // The popup that opens when a shul's pin is clicked: that shul's remaining
-// shiurim today, plus Directions and Follow buttons.
+// shiurim today, plus Directions, Follow and Shul page buttons.
 //
 // It only fetches when it opens, so the map doesn't load today's schedule
 // for every shul in range when the user might not click any of them.
 
 import { useQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { InfoWindow } from '@vis.gl/react-google-maps';
 import type { MapPin } from '@shiurfinder/shared';
 import { messageFor } from '../../core/api';
@@ -66,6 +67,13 @@ export function ShulCard({
           >
             Follow
           </button>
+          <Link
+            to="/shul/$id"
+            params={{ id: pin.publisherId }}
+            className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Shul page
+          </Link>
         </div>
       </div>
     </InfoWindow>
