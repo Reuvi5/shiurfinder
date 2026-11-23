@@ -172,7 +172,7 @@ Run all of these from the repo root.
 The tests use [Vitest](https://vitest.dev). The rules for writing them are in
 [CLAUDE.md](CLAUDE.md), "Tests".
 
-- **Unit tests** (`*.test.ts`, next to the file they test): `npm test`. No database
+- **Unit tests** (`*.test.ts`, in a `tests/` folder beside the code they test): `npm test`. No database
   needed. Add `-- --watch` to rerun them on every save.
 - **SQL tests** (`*.db.test.ts`): `npm run test:db`. They need a real database, so
   they run on their own one in the local Docker container, never the shared one.

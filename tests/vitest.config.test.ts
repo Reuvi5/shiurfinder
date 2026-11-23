@@ -1,4 +1,4 @@
-// Checks the settings in vitest.config.ts really reach the tests.
+// Checks the settings in ../vitest.config.ts really reach the tests.
 
 import { describe, expect, it } from 'vitest';
 

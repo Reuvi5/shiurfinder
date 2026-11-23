@@ -2,7 +2,7 @@
 // two extensions the queries need (PostGIS for distance, pg_trgm for typos).
 
 import { afterAll, describe, expect, it } from 'vitest';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '../prisma.service';
 
 const prisma = new PrismaService();
 

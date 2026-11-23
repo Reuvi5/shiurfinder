@@ -41,7 +41,8 @@ don't say how something should work, ask instead of guessing.
 
 - Names: components `PascalCase.tsx`, other files `feature.part.ts`
   (`shiurim.service.ts`), folders `kebab-case`.
-- Tests sit next to the file they test: `filters.test.ts` beside `filters.ts`.
+- Tests go in a `tests/` folder beside the code they test:
+  `features/map/tests/filters.test.ts` tests `features/map/filters.ts`.
 - Times: the database stores UTC. Users always see and enter New York time,
   wherever they are. Server: use `STARTS_AT_NY` (map.queries.ts), `nyMoment`
   (portal.queries.ts) and `nyTimeToUtc` (seed.ts). Website: format with

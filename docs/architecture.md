@@ -161,8 +161,8 @@ Room, Shiur, Occurrence, Topic, Language and Audience are used so far.
 
 ## Tests
 
-- **Unit tests** sit next to the file they test (`filters.test.ts` beside
-  `filters.ts`) and never touch a database: a service is tested with a fake
+- **Unit tests** go in a `tests/` folder beside the code they test
+  (`features/map/tests/filters.test.ts` tests `features/map/filters.ts`) and never touch a database: a service is tested with a fake
   `*.queries.ts`, so its logic is checked without SQL.
 - **SQL tests** (`*.db.test.ts`) test the `*.queries.ts` files on a real
   Postgres + PostGIS database, because the filters (distance, New York day and

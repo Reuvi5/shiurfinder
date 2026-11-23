@@ -1,8 +1,8 @@
 // Test settings for the whole repo: `npm test` runs the unit tests, `npm run
 // test:db` runs the SQL tests on a real database.
 //
-// Unit tests are `*.test.ts`, next to the file they test. SQL tests are
-// `*.db.test.ts` (see server/src/core/database/test-db.setup.ts).
+// Unit tests are `*.test.ts`, in a `tests/` folder beside the code they test.
+// SQL tests are `*.db.test.ts` (see server/src/core/database/test-db.setup.ts).
 // Rules: CLAUDE.md, "Tests". How to run them: README, "Tests".
 
 import { defineConfig } from 'vitest/config';
@@ -27,7 +27,7 @@ export default defineConfig({
       {
         test: {
           name: 'unit',
-          include: ['*.test.ts', '{server,web,shared}/**/*.test.ts'],
+          include: ['{tests,server,web,shared}/**/*.test.ts'],
           exclude: ['**/node_modules/**', '**/*.db.test.ts'],
           env: { TZ, DATABASE_URL: NO_DATABASE },
         },
