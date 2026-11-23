@@ -6,17 +6,19 @@
 
 import { Outlet, createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
 import { MapScreen } from './features/map/MapScreen';
+import { parseMapSearch } from './features/map/map.search';
 import { PortalPage } from './features/publisher-portal/PortalPage';
 import { PublisherPage } from './features/publisher-page/PublisherPage';
 import { ShiurPage } from './features/shiur-page/ShiurPage';
 
 const rootRoute = createRootRoute({ component: () => <Outlet /> });
 
-/** / : the map home screen (FR-5) */
+/** / : the map home screen (FR-5). ?shul=&shiur= say what's open (map.search.ts). */
 const mapRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: MapScreen,
+  validateSearch: parseMapSearch,
 });
 
 /** /portal : publisher portal, create a shiur (FR-20) */

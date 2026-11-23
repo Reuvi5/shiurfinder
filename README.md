@@ -8,7 +8,8 @@ shuls and maggidei shiur get one place to post and update their schedules.
 **Built so far:** the map home screen (FR-5, UC-1): search by location, distance,
 text and filters; pins on a map; Weekly and Featured lists; a card for each shul.
 The shiur popup and page (FR-9): click any shiur for its full details, Hebrew
-date, and Add to Google Calendar, Directions and Share buttons.
+date, and Add to Google Calendar, Directions and Share buttons. The browser's
+Back button goes back through the pins and shiurim you opened.
 Shul and maggid shiur pages (FR-10). Posting a shiur at `/portal` (FR-20): a form
 for a weekly or one-time shiur that shows up on the map right away. The shul, maggid
 shiur, room, topic and language can be picked from a list or typed in new; a new shul's
@@ -59,6 +60,7 @@ web/                     The website (React + Vite). Runs on http://localhost:51
         MapView.tsx          right half: the Google map and pins
         ShulCard.tsx         the popup when a pin is clicked
         map.api.ts           the map's calls to the server
+        map.search.ts        what the web address remembers (?shul=&shiur=)
         ...                  smaller pieces, hooks, helpers
       shiur-page/          one date of a shiur (FR-9)
         ShiurCard.tsx        the popup on the map, at the shiur's building

@@ -66,7 +66,9 @@ which shares the same cache.
 **The shiur popup (FR-9).** Clicking a shiur, in the side panel or in a shul's
 card on the map, opens `ShiurCard` (from `features/shiur-page/`) just below the
 shiur's building. It takes the shul card's place, so there's only ever one
-popup. `MapScreen` only holds which shiur is open; the card fetches its own
+popup. Which pin and shiur are open is kept in the web address
+(`/?shul=…&shiur=…`, see `features/map/map.search.ts`), so every click is a step
+in the browser's history and Back goes back through them. The card fetches its own
 details from `/shiur-page/:occurrenceId`. The same details also have their own
 page at `/shiur/:id`, which is the link Share sends. That page adds a small map
 of the building, and shows distance only if the user already allowed location
