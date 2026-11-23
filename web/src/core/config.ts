@@ -16,3 +16,11 @@ export const API_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost
 export const MAPS_KEY: string = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY ?? '';
 
 export const HAS_MAPS_KEY = MAPS_KEY.length > 0;
+
+/**
+ * The Map ID from the Google Cloud console. Pins and popups are Advanced
+ * Markers, which only draw on a map with a real Map ID: with a made-up one
+ * the map loads but every pin is silently missing. Public, like the key.
+ * Falls back to Google's DEMO_MAP_ID, which works for development.
+ */
+export const MAP_ID: string = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
