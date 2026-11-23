@@ -7,6 +7,8 @@ shuls and maggidei shiur get one place to post and update their schedules.
 
 **Built so far:** the map home screen (FR-5, UC-1): search by location, distance,
 text and filters; pins on a map; Weekly and Featured lists; a card for each shul.
+The shiur popup and page (FR-9): click any shiur for its full details, Hebrew
+date, and Add to Google Calendar, Directions and Share buttons.
 **Next:** create a shiur (FR-20), accounts, follows, notifications, moderation.
 
 ---
@@ -27,6 +29,7 @@ server/                  The API (NestJS). Runs on http://localhost:3000
         map.service.ts         the logic: turns rows into what the website shows
         map.queries.ts         the SQL
         map.constants.ts       fixed numbers (radius, 7-day window, ...)
+      shiur-page/            the shiur popup and page (FR-9): /shiur-page/:occurrenceId
       publishers/            shul and maggid shiur pages; route: /publishers/:id
       health/                /health: is the server up, can it reach the database
     core/                  code every feature uses
@@ -42,7 +45,8 @@ web/                     The website (React + Vite). Runs on http://localhost:51
     core/                  code every feature uses
       api.ts                 sends requests to the server; error messages
       config.ts              settings from .env (server URL, Maps key)
-    components/            pieces several features use (ShiurRow: one shiur in a list)
+    components/            pieces several features use (ShiurRow: one shiur in a list;
+                             MapPopup: a popup next to a map pin)
     features/
       map/                 everything for the map screen
         MapScreen.tsx        the screen; holds the search state
@@ -51,11 +55,16 @@ web/                     The website (React + Vite). Runs on http://localhost:51
         ShulCard.tsx         the popup when a pin is clicked
         map.api.ts           the map's calls to the server
         ...                  smaller pieces, hooks, helpers
+      shiur-page/          one date of a shiur (FR-9)
+        ShiurCard.tsx        the popup on the map, at the shiur's building
+        ShiurPage.tsx        the same details at /shiur/:id (where Share links go), with a small map
+        ShiurInfo.tsx        the details and buttons both of them show
       publisher-page/      shul page (/shul/:id) and maggid shiur page (/maggid/:id)
 
 shared/                  the shapes the server and website send each other
   common.ts                types several features use
   map.ts                   the map's types (one file per feature)
+  shiur-page.ts            the shiur popup's types
   publishers.ts            the shul and maggid shiur pages' types
   index.ts                 lists every file above
 

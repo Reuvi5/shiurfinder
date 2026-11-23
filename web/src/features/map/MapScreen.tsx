@@ -10,7 +10,8 @@
 //   │   ├── FilterPanel
 //   │   └── ShiurRow    (one per shiur, from components/)
 //   └── MapView         the Google map with one pin per shul
-//       └── ShulCard    opens when a pin is clicked
+//       ├── ShulCard    opens when a pin is clicked
+//       └── ShiurCard   opens when a shiur is clicked (features/shiur-page/, FR-9)
 
 import { useEffect, useMemo, useState } from 'react';
 import type { ShiurListItem } from '@shiurfinder/shared';
@@ -31,6 +32,15 @@ export function MapScreen() {
   const [debouncedQuery, setDebouncedQuery] = useState(''); // what we actually search for
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
   const [selectedPinId, setSelectedPinId] = useState<string | null>(null);
+  // The shiur whose popup is open. The whole row, because the popup points
+  // at its building (lat/lng) and the map moves there.
+  const [openShiur, setOpenShiur] = useState<ShiurListItem | null>(null);
+
+  /** A pin was clicked (or the map, to close). Only one popup at a time, so the shiur's closes. */
+  function selectPin(publisherId: string | null) {
+    setSelectedPinId(publisherId);
+    setOpenShiur(null);
+  }
 
   // Ask the browser for the user's location as soon as the page opens.
   useEffect(() => {
@@ -57,6 +67,16 @@ export function MapScreen() {
 
   const center = location ?? DEFAULT_LOCATION;
   const locationOff = state === 'denied' || state === 'unavailable';
+  // Only a real location gets the blue dot, never the default area.
+  const userLocation = state === 'granted' || state === 'typed' ? location : null;
+
+  /**
+   * A copy, so clicking the same shiur again still counts as a new click and
+   * the map moves back to it (FocusMap in MapView watches for a new object).
+   */
+  function openShiurPopup(item: ShiurListItem) {
+    setOpenShiur({ ...item });
+  }
 
   return (
     <div className="flex h-full flex-col md:flex-row">
@@ -72,7 +92,7 @@ export function MapScreen() {
         locating={state === 'asking'}
         onPickLocation={(next) => {
           setTypedLocation(next);
-          setSelectedPinId(null);
+          selectPin(null);
         }}
         onUseMyLocation={useBrowserLocation}
         radiusMiles={radiusMiles}
@@ -86,16 +106,26 @@ export function MapScreen() {
         isLoading={isLoading}
         isFetching={isFetching}
         errorMessage={error ? messageFor(error) : null}
-        // Clicking a shiur in the list highlights its shul's pin.
-        onSelectShiur={(item: ShiurListItem) => setSelectedPinId(item.shul?.id ?? null)}
+        // Clicking a shiur in the list highlights its shul's pin, moves the
+        // map there, and opens the shiur popup at it.
+        onSelectShiur={(item: ShiurListItem) => {
+          setSelectedPinId(item.shul?.id ?? null);
+          openShiurPopup(item);
+        }}
+        openShiur={openShiur}
+        selectedShulId={selectedPinId}
       />
 
       <main className="h-[55vh] flex-1 md:h-full">
         <MapView
           center={center}
+          userLocation={userLocation}
           pins={data?.pins ?? []}
           selectedPinId={selectedPinId}
-          onSelectPin={setSelectedPinId}
+          onSelectPin={selectPin}
+          openShiur={openShiur}
+          onSelectShiur={openShiurPopup}
+          onCloseShiur={() => selectPin(null)}
         />
       </main>
     </div>

@@ -9,4 +9,5 @@
 
 export * from './common';
 export * from './map';
+export * from './shiur-page';
 export * from './publishers';
