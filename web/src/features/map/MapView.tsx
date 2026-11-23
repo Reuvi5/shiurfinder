@@ -7,7 +7,7 @@
 import { useEffect } from 'react';
 import { AdvancedMarker, Map, Pin, useMap } from '@vis.gl/react-google-maps';
 import type { MapPin, ShiurListItem } from '@shiurfinder/shared';
-import { POPUP_ROOM_PX, type PopupSide } from '../../components/MapPopup';
+import { isPopupClick, POPUP_ROOM_PX, type PopupSide } from '../../components/MapPopup';
 import { HAS_MAPS_KEY } from '../../core/config';
 import { ShiurCard } from '../shiur-page/ShiurCard';
 import { ShiurInfoLoader } from '../shiur-page/ShiurInfoLoader';
@@ -94,7 +94,11 @@ export function MapView({
       defaultZoom={13}
       gestureHandling="greedy"
       mapId="shiurfinder-map"
-      onClick={() => onSelectPin(null)}
+      // A click on the empty map closes the popups, but not one that was
+      // really inside a popup (see isPopupClick).
+      onClick={() => {
+        if (!isPopupClick()) onSelectPin(null);
+      }}
     >
       <MoveMap to={center} />
 

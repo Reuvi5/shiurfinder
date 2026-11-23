@@ -17,6 +17,25 @@ const BODY_MAX_HEIGHT = 'min(380px, 40vh)';
 /** Room the map should leave on the popup's side of a point: body + header + arrow + pin. */
 export const POPUP_ROOM_PX = 500;
 
+/** A map click this soon after a press inside a popup belongs to that press. */
+const POPUP_CLICK_MS = 700;
+
+/** When a press inside any popup last started. Set by the listener below. */
+let lastPopupPressAt = 0;
+
+/**
+ * True if the map's "clicked the empty map" really came from a press inside
+ * a popup. The map uses this to ignore such clicks (see MapView).
+ *
+ * Why it's needed: clicking a shiur in a shul's card swaps the card for the
+ * shiur's popup. Google checks the click a moment later, finds the clicked
+ * row gone, and reports a click on the empty map, which closed everything.
+ * Google's event doesn't say what was clicked, so we go by timing.
+ */
+export function isPopupClick(): boolean {
+  return Date.now() - lastPopupPressAt < POPUP_CLICK_MS;
+}
+
 /** Presses and scrolls that must not reach the map (see the effect below). */
 const MAP_EVENTS = ['wheel', 'pointerdown', 'mousedown', 'touchstart', 'dblclick', 'contextmenu'];
 
@@ -42,9 +61,13 @@ export function MapPopup({
   // Without this, scrolling the popup zooms the map and dragging in it moves
   // the map. Plain DOM listeners, because the map's own listeners run before
   // React's would. Clicks still get through, so buttons and links work.
+  // Each press also records its time, for isPopupClick.
   useEffect(() => {
     if (!element) return;
-    const stop = (event: Event) => event.stopPropagation();
+    const stop = (event: Event) => {
+      event.stopPropagation();
+      if (event.type === 'pointerdown') lastPopupPressAt = Date.now();
+    };
     MAP_EVENTS.forEach((name) => element.addEventListener(name, stop));
     return () => MAP_EVENTS.forEach((name) => element.removeEventListener(name, stop));
   }, [element]);
