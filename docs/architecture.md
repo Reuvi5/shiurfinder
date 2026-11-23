@@ -65,7 +65,9 @@ card on the map, opens `ShiurCard` (from `features/shiur-page/`) just below the
 shiur's building. It takes the shul card's place, so there's only ever one
 popup. `MapScreen` only holds which shiur is open; the card fetches its own
 details from `/shiur-page/:occurrenceId`. The same details also have their own
-page at `/shiur/:id`, which is the link Share sends. The side panel follows
+page at `/shiur/:id`, which is the link Share sends. That page adds a small map
+of the building, and shows distance only if the user already allowed location
+(it never shows the browser's location prompt to someone opening a shared link). The side panel follows
 the map: it rings the open shiur's row, or with no shiur open, every row of the
 clicked pin's shul. It switches tabs if needed and scrolls to the first ringed
 row. Each tab remembers its own scroll position for when the user switches back. The Hebrew date is worked

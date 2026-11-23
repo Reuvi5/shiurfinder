@@ -55,7 +55,7 @@ web/                     The website (React + Vite). Runs on http://localhost:51
         ...                  smaller pieces, hooks, helpers
       shiur-page/          one date of a shiur (FR-9)
         ShiurCard.tsx        the popup on the map, at the shiur's building
-        ShiurPage.tsx        the same details at /shiur/:id (where Share links go)
+        ShiurPage.tsx        the same details at /shiur/:id (where Share links go), with a small map
         ShiurInfo.tsx        the details and buttons both of them show
 
 shared/                  the shapes the server and website send each other

@@ -16,6 +16,10 @@ export function useShiurDetails(
     queryKey: ['shiur-details', occurrenceId, origin?.lat, origin?.lng],
     queryFn: () => fetchShiurDetails(occurrenceId, origin),
     refetchInterval: REFRESH_MS,
+    // When only the starting point changes (e.g. the full page learns the
+    // user's location a moment later), keep showing the details instead of
+    // grey boxes. Never for a different shiur, or it would flash the old one.
+    placeholderData: (previous) => (previous?.occurrenceId === occurrenceId ? previous : undefined),
     staleTime: 30_000,
     retry: 1,
   });
