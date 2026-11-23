@@ -15,5 +15,6 @@
 
 ---
 
+- [ ] Tests added or updated (which FR?), or why none are needed.
 - [ ] Docs updated (README, `docs/architecture.md`, CLAUDE.md) if this changes them.
 - [ ] Changes the database? Migration committed, and `npm run db:deploy` run on AWS.

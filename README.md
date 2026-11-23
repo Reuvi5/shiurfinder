@@ -158,12 +158,31 @@ Run all of these from the repo root.
 | `npm run dev`        | Run the server and website, reloading on every save           |
 | `npm run typecheck`  | Check the TypeScript in all three folders                     |
 | `npm run format`     | Tidy the code the same way for everyone (Prettier)            |
+| `npm test`           | Run the unit tests (see "Tests" below)                        |
+| `npm run test:db`    | Run the SQL tests. **Local Docker only**, see "Tests"         |
 | `npm run build`      | Build the server and website for production                   |
 | `npm run db:seed`    | Add the demo shuls and shiurim (safe to run twice)            |
 | `npm run db:studio`  | Browse the database in your browser                           |
 | `npm run db:deploy`  | Apply migrations that already exist. Safe on the shared database |
 | `npm run db:migrate` | Create a new migration. **Local Docker only**, see below      |
 | `npm run db:reset`   | Wipe and rebuild the database. **Local Docker only**          |
+
+## Tests
+
+The tests use [Vitest](https://vitest.dev). The rules for writing them are in
+[CLAUDE.md](CLAUDE.md), "Tests".
+
+- **Unit tests** (`*.test.ts`, next to the file they test): `npm test`. No database
+  needed. Add `-- --watch` to rerun them on every save.
+- **SQL tests** (`*.db.test.ts`): `npm run test:db`. They need a real database, so
+  they run on their own one in the local Docker container, never the shared one.
+  First time only: `npm run db:up`, then
+  `docker exec shiurfinder-db createdb -U shiurfinder shiurfinder_test`.
+  `TEST_DATABASE_URL` in `.env` already points there.
+- **No Docker?** GitHub runs both on every PR, so push and check there.
+
+All tests run in UTC on purpose, so code that uses the computer's own time zone
+instead of New York fails. The settings are in `vitest.config.ts`.
 
 ## Changing the database
 
@@ -207,7 +226,7 @@ git push -u origin feat/fr20-create-shiur
 - Commit messages: `type(scope): what changed`, where type is `feat`, `fix`, `refactor`, `chore` or `docs`
 - **Everyone commits their own work under their own name.** The demo is partly
   graded on Git history showing all three of us.
-- GitHub checks every PR (formatting, TypeScript, build). A red X means one failed;
+- GitHub checks every PR (formatting, TypeScript, build, tests). A red X means one failed;
   `npm run format` fixes formatting.
 - Two Git hooks run by themselves (`npm install` sets them up): before each commit,
   Prettier formats the files you're committing; after each `git pull`, `npm install`
