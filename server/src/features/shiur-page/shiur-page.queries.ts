@@ -86,7 +86,8 @@ export class ShiurPageQueries {
       FROM "Occurrence" o
       JOIN "Shiur"          s    ON o."shiurId" = s.id
       LEFT JOIN "Publisher" shul ON s."shulId" = shul.id AND shul."type" = 'SHUL'
-      LEFT JOIN "Publisher" rav  ON s."maggidShiurId" = rav.id
+      -- An unapproved maggid shiur is left out, so their name never shows (NFR-4).
+      LEFT JOIN "Publisher" rav  ON s."maggidShiurId" = rav.id AND rav."approved" = true
       LEFT JOIN "Room"      ro   ON s."roomId" = ro.id
       LEFT JOIN "Room"      ro2  ON o."roomId" = ro2.id
       LEFT JOIN "Topic"     t    ON s."topicId"    = t.id
