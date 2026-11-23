@@ -158,3 +158,17 @@ Room, Shiur, Occurrence, Topic, Language and Audience are used so far.
   shiur pages do the same, and also hide shiurim at unapproved shuls and the
   names of unapproved maggidei shiur.
 - Anything in a `VITE_` variable ends up in the public JavaScript. No secrets there.
+
+## Tests
+
+- **Unit tests** go in a `tests/` folder beside the code they test
+  (`features/map/tests/filters.test.ts` tests `features/map/filters.ts`) and never touch a database: a service is tested with a fake
+  `*.queries.ts`, so its logic is checked without SQL.
+- **SQL tests** (`*.db.test.ts`) test the `*.queries.ts` files on a real
+  Postgres + PostGIS database, because the filters (distance, New York day and
+  time, approved only) live in the SQL. `server/src/core/database/test-db.setup.ts`
+  checks the database is local and brings its tables up to date first.
+- Everything runs in UTC (`vitest.config.ts`), so a time shown in the computer's
+  own time zone instead of New York fails a test.
+
+How to run them: README, "Tests". Rules: CLAUDE.md, "Tests".
