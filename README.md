@@ -30,6 +30,7 @@ server/                  The API (NestJS). Runs on http://localhost:3000
         map.queries.ts         the SQL
         map.constants.ts       fixed numbers (radius, 7-day window, ...)
       shiur-page/            the shiur popup and page (FR-9): /shiur-page/:occurrenceId
+      publishers/            shul and maggid shiur pages; route: /publishers/:id
       health/                /health: is the server up, can it reach the database
     core/                  code every feature uses
       database/              the database connection (Prisma)
@@ -44,7 +45,8 @@ web/                     The website (React + Vite). Runs on http://localhost:51
     core/                  code every feature uses
       api.ts                 sends requests to the server; error messages
       config.ts              settings from .env (server URL, Maps key)
-    components/            pieces several features use (MapPopup: a popup below a map pin)
+    components/            pieces several features use (ShiurRow: one shiur in a list;
+                             MapPopup: a popup next to a map pin)
     features/
       map/                 everything for the map screen
         MapScreen.tsx        the screen; holds the search state
@@ -57,11 +59,13 @@ web/                     The website (React + Vite). Runs on http://localhost:51
         ShiurCard.tsx        the popup on the map, at the shiur's building
         ShiurPage.tsx        the same details at /shiur/:id (where Share links go), with a small map
         ShiurInfo.tsx        the details and buttons both of them show
+      publisher-page/      shul page (/shul/:id) and maggid shiur page (/maggid/:id)
 
 shared/                  the shapes the server and website send each other
   common.ts                types several features use
   map.ts                   the map's types (one file per feature)
   shiur-page.ts            the shiur popup's types
+  publishers.ts            the shul and maggid shiur pages' types
   index.ts                 lists every file above
 
 docs/                    SRS, design document, architecture notes

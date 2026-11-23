@@ -23,6 +23,7 @@ const MESSAGES: Record<string, string> = {
   INVALID_REQUEST: 'Something about that search was not valid.',
   SHUL_NOT_FOUND: 'That shul could not be found.',
   SHIUR_NOT_FOUND: 'That shiur could not be found.',
+  PUBLISHER_NOT_FOUND: 'That page could not be found.',
   NOT_SIGNED_IN: 'Sign in to do that.',
   NO_PERMISSION: "You don't have permission to do that.",
   TOO_MANY_REQUESTS: 'Too many requests. Wait a moment and try again.',

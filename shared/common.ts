@@ -22,7 +22,8 @@ export interface ShiurListItem {
   shul: { id: string; name: string } | null;
   maggidShiur: { id: string; name: string } | null;
   room: string | null;
-  distanceMiles: number;
+  /** miles from the search location. Missing on pages with no search location (e.g. a shul page). */
+  distanceMiles?: number;
   lat: number;
   lng: number;
   /** posted in the last 72 hours */

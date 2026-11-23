@@ -19,7 +19,7 @@ compile instead of breaking at runtime.
 
 ## Server: one folder per feature, three layers per folder
 
-Each feature folder (`map/` and `shiur-page/` today) has the same files:
+Each feature folder (`map/`, `shiur-page/` and `publishers/` today) has the same files:
 
 | File                 | Its job                                                         | Should never     |
 | -------------------- | --------------------------------------------------------------- | ---------------- |
@@ -53,7 +53,8 @@ several features live outside it:
 - `App.tsx`: loads Google Maps and the router.
 
 When a component is needed by two features (a generic button, say), move it to
-`web/src/components/`.
+`web/src/components/`. Today that's `ShiurRow`: one shiur in a list, used by the
+map and the shul, maggid shiur and shiur pages. Clicking it opens the shiur page.
 
 **One search feeds the whole map screen.** `MapScreen` runs `useMapSearch` once
 and passes the results to both `SidePanel` and `MapView`, so the pins and the list
@@ -129,5 +130,7 @@ Room, Shiur, Occurrence, Topic, Language and Audience are used so far.
 
 - The user's location is only sent as part of a search and is never saved (NFR-5).
 - An unapproved shul returns the same "not found" as a missing one, so nobody
-  can see it exists before a moderator approves it (NFR-4).
+  can see it exists before a moderator approves it (NFR-4). The shul and maggid
+  shiur pages do the same, and also hide shiurim at unapproved shuls and the
+  names of unapproved maggidei shiur.
 - Anything in a `VITE_` variable ends up in the public JavaScript. No secrets there.

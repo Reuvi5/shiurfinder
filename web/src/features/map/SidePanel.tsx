@@ -10,7 +10,7 @@ import type { MapSearchQuery, MapSearchResult, ShiurListItem } from '@shiurfinde
 import { FilterPanel } from './FilterPanel';
 import { NO_FILTERS, countActive, describe, shiurimCount, type Filters } from './filters';
 import { LocationSearch } from './LocationSearch';
-import { ShiurRow } from './ShiurRow';
+import { ShiurRow } from '../../components/ShiurRow';
 import type { SearchLocation } from './useSearchLocation';
 
 type Tab = 'featured' | 'weekly';
