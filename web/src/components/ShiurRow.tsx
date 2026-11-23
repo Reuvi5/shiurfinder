@@ -12,23 +12,41 @@ import type { ShiurListItem } from '@shiurfinder/shared';
 const ROW_CLASS =
   'block w-full rounded-lg border border-slate-200 p-3 text-left transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:hover:border-slate-700 dark:hover:bg-slate-900';
 
-export function ShiurRow({ item, onSelect }: { item: ShiurListItem; onSelect?: () => void }) {
+/** Leaves out a name the page already shows, e.g. the rabbi's own name on his page. */
+type Hide = 'shul' | 'maggidShiur';
+
+export function ShiurRow({
+  item,
+  onSelect,
+  hide,
+}: {
+  item: ShiurListItem;
+  onSelect?: () => void;
+  hide?: Hide;
+}) {
   if (onSelect) {
     return (
       <button type="button" onClick={onSelect} className={ROW_CLASS}>
-        <RowContent item={item} />
+        <RowContent item={item} hide={hide} />
       </button>
     );
   }
   return (
     <Link to="/shiur/$id" params={{ id: item.occurrenceId }} className={ROW_CLASS}>
-      <RowContent item={item} />
+      <RowContent item={item} hide={hide} />
     </Link>
   );
 }
 
 /** What the row shows. Same whether it's a link or a button. */
-function RowContent({ item }: { item: ShiurListItem }) {
+function RowContent({ item, hide }: { item: ShiurListItem; hide?: Hide }) {
+  // Who and where, e.g. "Rabbi Cohen · Beth Aaron · Main Beis Medrash", minus anything hidden.
+  const whoAndWhere = [
+    hide !== 'maggidShiur' && item.maggidShiur?.name,
+    hide !== 'shul' && item.shul?.name,
+    item.room,
+  ].filter(Boolean);
+
   return (
     <>
       <div className="flex items-start justify-between gap-2">
@@ -36,11 +54,9 @@ function RowContent({ item }: { item: ShiurListItem }) {
         <StatusBadge item={item} />
       </div>
 
-      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-        {item.maggidShiur?.name && <span>{item.maggidShiur.name} · </span>}
-        {item.shul?.name}
-        {item.room && <span> · {item.room}</span>}
-      </p>
+      {whoAndWhere.length > 0 && (
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{whoAndWhere.join(' · ')}</p>
+      )}
 
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-500">
         {formatTime(item.startsAt)}
