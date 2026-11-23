@@ -26,10 +26,17 @@ const portalRoute = createRoute({
   component: PortalPage,
 });
 
-/** /shul/123 : a shul or maggid shiur page (FR-10) */
+/** /shul/123 : a shul page (FR-10) */
 const publisherRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/shul/$id',
+  component: PublisherPage,
+});
+
+/** /maggid/123 : a maggid shiur page (FR-10). Same page component as /shul. */
+const maggidRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/maggid/$id',
   component: PublisherPage,
 });
 
@@ -40,7 +47,13 @@ const shiurRoute = createRoute({
   component: ShiurPage,
 });
 
-const routeTree = rootRoute.addChildren([mapRoute, portalRoute, publisherRoute, shiurRoute]);
+const routeTree = rootRoute.addChildren([
+  mapRoute,
+  portalRoute,
+  publisherRoute,
+  maggidRoute,
+  shiurRoute,
+]);
 
 export const router = createRouter({ routeTree });
 

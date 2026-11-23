@@ -19,7 +19,7 @@ compile instead of breaking at runtime.
 
 ## Server: one folder per feature, three layers per folder
 
-Each feature folder (`server/src/features/map/` today) has the same files:
+Each feature folder (`map/` and `publishers/` today) has the same files:
 
 | File                 | Its job                                                         | Should never     |
 | -------------------- | --------------------------------------------------------------- | ---------------- |
@@ -98,5 +98,7 @@ Room, Shiur, Occurrence, Topic, Language and Audience are used so far.
 
 - The user's location is only sent as part of a search and is never saved (NFR-5).
 - An unapproved shul returns the same "not found" as a missing one, so nobody
-  can see it exists before a moderator approves it (NFR-4).
+  can see it exists before a moderator approves it (NFR-4). The shul and maggid
+  shiur pages do the same, and also hide shiurim at unapproved shuls and the
+  names of unapproved maggidei shiur.
 - Anything in a `VITE_` variable ends up in the public JavaScript. No secrets there.
