@@ -5,92 +5,34 @@ shuls and maggidei shiur get one place to post and update their schedules.
 
 **MCON 357** — Oriel Zer, Reuvi Kupchik, Mattan Jackier
 
-**Built so far:** the map home screen (FR-5, UC-1): search by location, distance,
-text and filters; pins on a map; Weekly and Featured lists; a card for each shul.
-The shiur popup and page (FR-9): click any shiur for its full details, Hebrew
-date, and Add to Google Calendar, Directions and Share buttons. The browser's
-Back button goes back through the pins and shiurim you opened.
-Shul and maggid shiur pages (FR-10). Posting a shiur at `/portal` (FR-20): a form
-for a weekly or one-time shiur that shows up on the map right away. The shul, maggid
-shiur, room, topic and language can be picked from a list or typed in new; a new shul's
-address is picked from Google's suggestions so it gets a pin.
-The base for login (FR-2): sign-up and sign-in by email and password, and a check
-that routes use to refuse guests. No sign-in pages yet.
-**Next:** sign-in pages and account settings, saves and follows, changing and
-cancelling shiurim, then notifications and moderation.
+**What's built, what's next and who owns each requirement:**
+[docs/progress.md](docs/progress.md).
 
 ---
 
 ## Folders
 
 ```
-server/                  The API (NestJS). Runs on http://localhost:3000
-  prisma/                  schema.prisma (the tables), migrations/, seed.ts (demo data)
-  scripts/                 guard-local-db.js (stops commands that could wipe the shared DB)
-  src/
-    main.ts                starts the server
-    app.module.ts          the list of features the server is made of
-    features/              one folder per feature (anything with routes)
-      map/                   the map feature
-        map.controller.ts      routes: /map/search, /map/filters, /map/shul/:id/today
-        map.validation.ts      what a request is allowed to contain
-        map.service.ts         the logic: turns rows into what the website shows
-        map.queries.ts         the SQL
-        map.constants.ts       fixed numbers (radius, 7-day window, ...)
-      shiur-page/            the shiur popup and page (FR-9): /shiur-page/:occurrenceId
-      publishers/            shul and maggid shiur pages; route: /publishers/:id
-      portal/                posting a shiur (FR-20): /portal/options, POST /portal/shiurim
-      health/                /health: is the server up, can it reach the database
-    core/                  code every feature uses
-      auth/                  login (Better Auth): /auth/..., SignedInGuard, @CurrentUser()
-      config/                settings several parts read (which website may call us)
-      database/              the database connection (Prisma)
-      errors/                turns every error into { code, message }
-      validation/            checks requests against a Zod schema
-
-web/                     The website (React + Vite). Runs on http://localhost:5173
-  src/
-    main.tsx               starts the website
-    App.tsx                loads Google Maps and the router
-    routes.tsx             which page each web address shows
-    core/                  code every feature uses
-      api.ts                 sends requests to the server (get, post); error messages
-      auth.ts                who is signed in (useCurrentUser); sign up, in and out
-      config.ts              settings from .env (server URL, Maps key, Map ID)
-    components/            pieces several features use (ShiurRow: one shiur in a list;
-                             MapPopup: a popup next to a map pin)
-    features/
-      map/                 everything for the map screen
-        MapScreen.tsx        the screen; holds the search state
-        SidePanel.tsx        left half: search, filters, lists
-        MapView.tsx          right half: the Google map and pins
-        ShulCard.tsx         the popup when a pin is clicked
-        map.api.ts           the map's calls to the server
-        map.search.ts        what the web address remembers (?shul=&shiur=)
-        ...                  smaller pieces, hooks, helpers
-      shiur-page/          one date of a shiur (FR-9)
-        ShiurCard.tsx        the popup on the map, at the shiur's building
-        ShiurPage.tsx        the same details at /shiur/:id (where Share links go), with a small map
-        ShiurInfo.tsx        the details and buttons both of them show
-      publisher-page/      shul page (/shul/:id) and maggid shiur page (/maggid/:id)
-      publisher-portal/    the "Post a shiur" form at /portal (FR-20); Combobox: pick or type
-
-shared/                  the shapes the server and website send each other
-  common.ts                types several features use
-  map.ts                   the map's types (one file per feature)
-  shiur-page.ts            the shiur popup's types
-  publishers.ts            the shul and maggid shiur pages' types
-  portal.ts                the "Post a shiur" form's types
-  index.ts                 lists every file above
-
-docs/                    SRS, design document, architecture notes
+server/                The API (NestJS). Runs on http://localhost:3000
+  prisma/                the tables (schema.prisma), migrations/, demo data (seed.ts)
+  scripts/               guard-local-db.js: stops commands that could wipe the shared database
+  src/features/          one folder per feature, e.g. map/
+  src/core/              code every feature uses: login, settings, database, errors, time, test helpers
+web/                   The website (React + Vite). Runs on http://localhost:5173
+  src/features/          one folder per feature, e.g. map/
+  src/core/              code every feature uses: server calls, login, settings
+  src/components/        pieces several features use
+shared/                the types the server and website send each other, one file per feature
+docs/                  SRS, design doc, architecture, API, progress
 ```
+
+Every file starts with a line saying what it does. How the pieces fit:
+[docs/architecture.md](docs/architecture.md).
 
 **Adding a feature?** Make a folder for it on both sides, e.g. `server/src/features/shiurim/`
 and `web/src/features/create-shiur/`, and copy the layout of `map/`. Then add the
 module to `server/src/app.module.ts`, the page to `web/src/routes.tsx`, and your
 types file to `shared/index.ts`.
-[docs/architecture.md](docs/architecture.md) explains how the pieces fit.
 
 ## Stack
 
@@ -99,8 +41,10 @@ types file to `shared/index.ts`.
 | Website  | React 18, TypeScript, Vite, TanStack Query, Tailwind        |
 | Map      | Google Maps Platform via `@vis.gl/react-google-maps`        |
 | Server   | NestJS, Zod                                                 |
+| Login    | Better Auth                                                 |
 | Database | PostgreSQL 16 + PostGIS + pg_trgm, hosted on AWS RDS        |
 | ORM      | Prisma for the tables and migrations; raw SQL for distance  |
+| Tests    | Vitest, supertest                                           |
 
 ---
 
@@ -147,7 +91,7 @@ curl "http://localhost:3000/map/search?lat=40.8976&lng=-74.0204&radiusMiles=5"
 
 ### Google Maps keys
 
-Two keys, from the [Google Cloud console](https://console.cloud.google.com/google/maps-apis):
+Two keys and a Map ID, from the [Google Cloud console](https://console.cloud.google.com/google/maps-apis):
 
 - `VITE_GOOGLE_MAPS_BROWSER_KEY`: enable **Maps JavaScript API** and **Places API**,
   and restrict it to the website `localhost:5173`. This one is sent to the browser,
@@ -155,7 +99,11 @@ Two keys, from the [Google Cloud console](https://console.cloud.google.com/googl
 - `VITE_GOOGLE_MAPS_MAP_ID`: the Map ID, already filled in `.env.example`. The pins
   and popups need a real one: with a made-up ID the map loads but every pin is missing.
 - `GOOGLE_MAPS_SERVER_KEY`: enable **Geocoding API** and restrict it by IP.
-  Server only. Never put it in a `VITE_` variable.
+  Server only. Never put it in a `VITE_` variable. Nothing uses it yet, so you
+  can leave it empty for now.
+
+Which outside services the app uses, and what breaks without each:
+[docs/api.md](docs/api.md), "Outside services".
 
 ---
 
@@ -176,6 +124,8 @@ Run all of these from the repo root.
 | `npm run db:deploy`  | Apply migrations that already exist. Safe on the shared database |
 | `npm run db:migrate` | Create a new migration. **Local Docker only**, see below      |
 | `npm run db:reset`   | Wipe and rebuild the database. **Local Docker only**          |
+| `npm run db:up`      | Start the local Docker database                               |
+| `npm run db:down`    | Stop the local Docker database                                |
 
 ## Tests
 
@@ -232,13 +182,14 @@ can delete everyone's data on the shared database.
 git checkout -b feat/fr20-create-shiur     # one branch per requirement
 git commit -m "feat(shiurim): add create form"
 git push -u origin feat/fr20-create-shiur
-# open a PR; one of the other two reviews it; squash and merge
+# open a PR; one of the other two reviews it; merge it with "Create a merge commit"
 ```
 
-- Branch names: `feat/fr<N>-<short-name>`, `fix/<short-name>`, `chore/<short-name>`
-- Commit messages: `type(scope): what changed`, where type is `feat`, `fix`, `refactor`, `chore` or `docs`
+- Branch names: `feat/fr<N>-<short-name>`, or `<type>/<short-name>` for the other types below
+- Commit messages: `type(scope): what changed`, where type is `feat`, `fix`, `test`, `refactor`, `chore` or `docs`
 - **Everyone commits their own work under their own name.** The demo is partly
-  graded on Git history showing all three of us.
+  graded on Git history showing all three of us, so merge PRs with a merge commit,
+  not "Squash and merge": a squash folds everyone's commits into one.
 - GitHub checks every PR (formatting, TypeScript, build, tests). A red X means one failed;
   `npm run format` fixes formatting.
 - Two Git hooks run by themselves (`npm install` sets them up): before each commit,
@@ -249,6 +200,13 @@ git push -u origin feat/fr20-create-shiur
 
 ## Documents
 
-In [docs/](docs/): the SRS, the Software Design Document, the database diagram, and
-[architecture.md](docs/architecture.md). The **design doc wins** over the SRS and over
-the code: when they disagree, fix the code, or update the doc on purpose.
+In [docs/](docs/):
+
+- the SRS (what the app must do) and the Software Design Document (how it's built),
+  with its database diagram
+- [architecture.md](docs/architecture.md): how the code fits together
+- [api.md](docs/api.md): the server's routes, error codes and outside services
+- [progress.md](docs/progress.md): each requirement, whether it's built, and who owns it
+
+The **design doc wins** over the SRS and over the code: when they disagree, fix the
+code, or update the doc on purpose.

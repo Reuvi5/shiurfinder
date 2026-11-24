@@ -1,0 +1,75 @@
+# API
+
+Every route the server answers, its error codes, and the outside services the
+app uses. The exact shapes of each request and reply are the types in
+`shared/` (named below), so this file doesn't repeat them.
+
+For how the code behind each route is laid out, see
+[architecture.md](architecture.md).
+
+## Routes
+
+The server runs on http://localhost:3000. "Sign-in" says whether the route
+needs an account (`@UseGuards(SignedInGuard)`, see `server/src/core/auth/`).
+
+| Route | What it does | Sign-in | Input | Reply (in `shared/`) | Errors |
+| --- | --- | --- | --- | --- | --- |
+| `GET /health` | Is the server up, can it reach the database | No | none | `{ status, db, postgis }` | none (`db: "down"` instead) |
+| `GET /map/search` | Pins and the Weekly and Featured lists (FR-5, FR-8) | No | `lat`, `lng` (required); `radiusMiles` (up to 100), `q`, `topic`, `language`, `audience`, `dayOfWeek` (0 = Sunday), `afterTime`, `beforeTime` (`"19:30"`) | `MapSearchResult` (map.ts) | `INVALID_REQUEST` |
+| `GET /map/filters` | The choices the Filters panel offers | No | none | `FilterOptions` (map.ts) | none |
+| `GET /map/shul/:id/today` | The card that opens when a pin is clicked | No | `lat`, `lng` (optional, for distance) | `ShulTodayResult` (map.ts) | `SHUL_NOT_FOUND`, `INVALID_REQUEST` |
+| `GET /shiur-page/:occurrenceId` | One date of a shiur (FR-9) | No | `lat`, `lng` (optional, for distance) | `ShiurDetails` (shiur-page.ts) | `SHIUR_NOT_FOUND`, `INVALID_REQUEST` |
+| `GET /publishers/:id` | A shul's or maggid shiur's page (FR-10). Check `type` in the reply | No | none | `PublisherPageResult` (publishers.ts) | `PUBLISHER_NOT_FOUND` |
+| `GET /portal/options` | What the "Post a shiur" form's lists offer (FR-20) | No, for now | none | `PortalOptions` (portal.ts) | none |
+| `POST /portal/shiurim` | Post a weekly or featured shiur (FR-20) | No, for now | body: `NewShiur` (portal.ts) | `NewShiurResult` (portal.ts) | `INVALID_REQUEST`, `SHUL_NOT_FOUND`, `DATE_PASSED` |
+| `/auth/...` | Sign up, sign in, sign out, who is signed in (FR-2). Answered by Better Auth, not our code | No | see [Better Auth's list](https://www.better-auth.com/docs/concepts/api) | Better Auth's own | Better Auth's own |
+
+The portal is open to everyone until accounts are built. Then only a shul's
+own team may post for it (NFR-4).
+
+An unapproved shul, maggid shiur or shiur answers the same "not found" as a
+missing one, so nobody can tell it exists before a moderator approves it (NFR-4).
+
+## Errors
+
+Every error is `{ code, message }` (`ApiError` in `shared/common.ts`). The
+website shows its own wording for each `code` (`web/src/core/api.ts`); `message`
+is for developers.
+
+| Code | Status | When |
+| --- | --- | --- |
+| `INVALID_REQUEST` | 400 | The input broke a rule (`message` names the field), or a picked id doesn't exist or doesn't fit (a room from another shul) |
+| `DATE_PASSED` | 400 | A featured shiur's date and time are already over |
+| `BAD_REQUEST` | 400 | Any other 400 thrown without a code |
+| `NOT_SIGNED_IN` | 401 | The route needs an account and there isn't one |
+| `NO_PERMISSION` | 403 | Signed in, but not allowed (not used yet) |
+| `SHUL_NOT_FOUND` | 404 | No such shul, or not approved |
+| `SHIUR_NOT_FOUND` | 404 | No such shiur date, or not approved |
+| `PUBLISHER_NOT_FOUND` | 404 | No such shul or maggid shiur, or not approved |
+| `NOT_FOUND` | 404 | Any other 404, e.g. a route that doesn't exist |
+| `TOO_MANY_REQUESTS` | 429 | Too many requests (nothing sends it yet) |
+| `INTERNAL_ERROR` | 500 | A bug on our side. Logged with its stack trace |
+
+To add one, throw a Nest exception with a `code`, e.g.
+`new NotFoundException({ code: 'SHUL_NOT_FOUND', message })`, and add its
+wording to `web/src/core/api.ts`.
+
+## Outside services
+
+| Service | Used for | Setting in `.env` | Without it |
+| --- | --- | --- | --- |
+| Google Maps JavaScript API | The map and its pins | `VITE_GOOGLE_MAPS_BROWSER_KEY`, `VITE_GOOGLE_MAPS_MAP_ID` | The map is grey; search and lists still work. A made-up Map ID loads the map with no pins |
+| Google Places API | The address search on the map and for a new shul in the portal | `VITE_GOOGLE_MAPS_BROWSER_KEY` | No address suggestions, so no new shuls |
+| Google Geocoding API | Nothing yet | `GOOGLE_MAPS_SERVER_KEY` | Nothing breaks |
+| Google Maps directions link | The Directions buttons | none (a plain link) | Only that button |
+| Google Calendar link and .ics file | Add to Calendar on the shiur page (FR-13) | none (a link, and a file the website builds) | Only those buttons |
+| Better Auth | Accounts and sign-in, inside our own server | `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `WEB_ORIGIN` | The real server won't start without the secret |
+| AWS RDS (PostgreSQL + PostGIS) | The shared database | `DATABASE_URL`, plus your IP on its firewall | The app hangs with no error |
+
+The Hebrew date uses Node's built-in `Intl`, so it needs no service.
+
+**Planned** (SRS 4.3 and the design doc), not built yet: an email service
+(verification, password reset, invitations, alerts), browser notifications,
+Google sign-in, and Amazon S3 for flyers and logos. The SRS says every service
+must stay in a free tier, and the app must keep working if one fails. Add each
+one here when it's built.
