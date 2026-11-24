@@ -5,11 +5,20 @@ design doc adds that isn't a single requirement. Update the row in the same PR
 that changes it.
 
 **Done** = everything in the SRS and design doc works. **Partly** = some works;
-"Missing" says what doesn't. **Not started** = nothing yet.
+"Notes" says what doesn't. **Not started** = nothing yet.
+
+## Summary
+
+- **Must (18):** 10 partly, 8 not started.
+- **Should (5):** 1 partly, 4 not started.
+- **Login (FR-2) is the bottleneck.** Finishing it unblocks FR-1, FR-9, FR-10
+  and FR-20, and most of what hasn't started.
+
+Update these counts when a row's status changes.
 
 ## Functional requirements
 
-| FR    | What                                   | Priority | Status      | Where to see it                              | Missing                                                                                                                                   |
+| FR    | What                                   | Priority | Status      | Where to see it                              | Notes                                                                                                                                     |
 | ----- | -------------------------------------- | -------- | ----------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | FR-1  | Browse without an account              | Must     | Partly      | Every page                                   | Save, Follow and Report are greyed out; they should ask a guest to sign in (needs FR-2)                                                   |
 | FR-2  | Sign up and sign in                    | Must     | Partly      | No page yet (`/auth/...` routes)             | Sign-in pages, verification email and password reset (through Amazon SES), Google sign-in (Should)                                        |
