@@ -1,5 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "src/**/tests/**", "src/core/database/test-db.setup.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/tests/**",
+    "src/core/testing/**",
+    "src/core/database/test-db.setup.ts"
+  ]
 }

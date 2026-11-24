@@ -5,6 +5,7 @@
 // SQL tests are `*.db.test.ts` (see server/src/core/database/test-db.setup.ts).
 // Rules: CLAUDE.md, "Tests". How to run them: README, "Tests".
 
+import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 import { testDatabaseUrl } from './server/src/core/database/test-db.setup';
 
@@ -33,6 +34,9 @@ export default defineConfig({
         },
       },
       {
+        // Nest finds what each class needs from type information that Vitest's
+        // usual compiler drops, so the server is compiled with SWC here.
+        plugins: [swc.vite({ tsconfigFile: 'server/tsconfig.json', module: { type: 'es6' } })],
         test: {
           name: 'db',
           include: ['server/**/*.db.test.ts'],
