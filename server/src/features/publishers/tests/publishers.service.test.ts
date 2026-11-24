@@ -128,6 +128,12 @@ describe('FR-10 the one-line address', () => {
     );
   });
 
+  it('puts a missing zip right after a state the street already has, with no comma', async () => {
+    expect(await address({ address: '950 Queen Anne Rd, Teaneck, NJ' })).toBe(
+      '950 Queen Anne Rd, Teaneck, NJ 07666',
+    );
+  });
+
   it('uses whatever parts are there, or null with none', async () => {
     expect(await address({ address: null, zip: null })).toBe('Teaneck, NJ');
     expect(await address({ address: null, city: null, state: null, zip: null })).toBeNull();
