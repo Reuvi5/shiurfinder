@@ -87,7 +87,16 @@ function oneLineAddress(p: PublisherRow): string | null {
   const missing = (part: string | null) =>
     part && !street.toLowerCase().includes(part.toLowerCase());
   const stateZip = [p.state, p.zip].filter(missing).join(' ');
-  const parts = [street, missing(p.city) ? p.city : null, stateZip].filter(Boolean);
+  const parts = [street, missing(p.city) ? p.city : null].filter(Boolean);
+
+  // A zip goes after its state with a space, even when the state is already in
+  // the street: "Teaneck, NJ 07666", not "Teaneck, NJ, 07666".
+  const stateInStreet = p.state && !missing(p.state);
+  if (stateZip && stateInStreet && parts.length === 1) {
+    parts[0] = `${parts[0]} ${stateZip}`;
+  } else if (stateZip) {
+    parts.push(stateZip);
+  }
   return parts.length > 0 ? parts.join(', ') : null;
 }
 
