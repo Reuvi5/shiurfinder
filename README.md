@@ -173,7 +173,10 @@ The tests use [Vitest](https://vitest.dev). The rules for writing them are in
 [CLAUDE.md](CLAUDE.md), "Tests".
 
 - **Unit tests** (`*.test.ts`, in a `tests/` folder beside the code they test): `npm test`. No database
-  needed. Add `-- --watch` to rerun them on every save.
+  needed. Add `-- --watch` to rerun them on every save, or `-- --coverage` to see
+  which lines they reach (GitHub fails a PR below the limit in `vitest.config.ts`).
+  On Windows, run coverage in a terminal whose folder starts with a capital `C:`
+  (VS Code's often starts with `c:`), or every file shows up twice.
 - **SQL tests** (`*.db.test.ts`): `npm run test:db`. They need a real database, so
   they run on their own one in the local Docker container, never the shared one.
   First time only: `npm run db:up`, then

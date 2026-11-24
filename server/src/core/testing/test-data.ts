@@ -163,6 +163,22 @@ export class TestData {
     return { shiur, occurrenceIds };
   }
 
+  /**
+   * Rows the server made during a test (e.g. a POST), so cleanUp removes them too.
+   * A typed-in topic that matched an existing one isn't new: don't track it.
+   */
+  track(rows: {
+    shiurId?: string;
+    publisherId?: string;
+    topicId?: string;
+    languageId?: string;
+  }): void {
+    if (rows.shiurId) this.shiurIds.push(rows.shiurId);
+    if (rows.publisherId) this.publisherIds.push(rows.publisherId);
+    if (rows.topicId) this.topicIds.push(rows.topicId);
+    if (rows.languageId) this.languageIds.push(rows.languageId);
+  }
+
   /** Removes everything this file made, so the next file starts clean. */
   async cleanUp(): Promise<void> {
     // Shiurim first: a maggid shiur's shiur isn't deleted with its publisher.

@@ -48,8 +48,9 @@ export default defineConfig({
       },
     ],
     // Which files count toward coverage: the code that decides or calculates.
-    // The coverage limit is turned on once the existing features have tests.
+    // GitHub fails a PR below these limits (CLAUDE.md, "Tests").
     coverage: {
+      thresholds: { lines: 95, statements: 95, functions: 95, branches: 90 },
       provider: 'v8',
       include: [
         'server/src/**/*.service.ts',
