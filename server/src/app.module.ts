@@ -6,6 +6,7 @@
 
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './core/auth/auth.module';
 import { DatabaseModule } from './core/database/database.module';
 import { HealthController } from './features/health/health.controller';
 import { MapModule } from './features/map/map.module';
@@ -18,6 +19,7 @@ import { PortalModule } from './features/portal/portal.module';
     // Loads the .env file at the repo root into process.env.
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['../.env', '.env'] }),
     DatabaseModule,
+    AuthModule,
     MapModule,
     ShiurPageModule,
     PublishersModule,

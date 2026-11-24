@@ -56,6 +56,11 @@ export function minutesFromNow(minutes: number): Date {
 
 // ---------------------------------------------------------------- rows
 
+/** An email no other test has used, since User.email is unique. */
+export function uniqueEmail(): string {
+  return `test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
+}
+
 /** One date of a shiur: just a time, or a time with more about that date. */
 type DateInput =
   Date | { startsAt: Date; endsAt?: Date; status?: OccurrenceStatus; roomId?: string };
@@ -82,6 +87,7 @@ export class TestData {
   private readonly topicIds: string[] = [];
   private readonly languageIds: string[] = [];
   private readonly audienceIds: string[] = [];
+  private readonly userIds: string[] = [];
 
   /** `place` is where shuls go when a test doesn't say. */
   constructor(
@@ -144,6 +150,22 @@ export class TestData {
     return audience;
   }
 
+  /**
+   * A user with a unique email, for SQL tests (saves, follows, ...). Not signed
+   * in: for an API test that needs a login cookie, use signUp() in test-app.ts.
+   */
+  async user(input: { name?: string; isModerator?: boolean } = {}) {
+    const user = await this.prisma.user.create({
+      data: {
+        email: uniqueEmail(),
+        name: input.name ?? 'Test User',
+        isModerator: input.isModerator ?? false,
+      },
+    });
+    this.userIds.push(user.id);
+    return user;
+  }
+
   /** A shiur and its dates. Returns the shiur and the dates' ids, in order. */
   async shiur(input: ShiurInput) {
     const { dates, ...fields } = input;
@@ -172,7 +194,9 @@ export class TestData {
     publisherId?: string;
     topicId?: string;
     languageId?: string;
+    userId?: string;
   }): void {
+    if (rows.userId) this.userIds.push(rows.userId);
     if (rows.shiurId) this.shiurIds.push(rows.shiurId);
     if (rows.publisherId) this.publisherIds.push(rows.publisherId);
     if (rows.topicId) this.topicIds.push(rows.topicId);
@@ -181,6 +205,8 @@ export class TestData {
 
   /** Removes everything this file made, so the next file starts clean. */
   async cleanUp(): Promise<void> {
+    // Removing a user also removes their sessions, logins, saves and follows.
+    await this.prisma.user.deleteMany({ where: { id: { in: this.userIds } } });
     // Shiurim first: a maggid shiur's shiur isn't deleted with its publisher.
     await this.prisma.shiur.deleteMany({ where: { id: { in: this.shiurIds } } });
     await this.prisma.publisher.deleteMany({ where: { id: { in: this.publisherIds } } });
