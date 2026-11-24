@@ -123,6 +123,7 @@ Run all of these from the repo root.
 | `npm run build`      | Build the server and website for production                   |
 | `npm run db:seed`    | Add the demo shuls and shiurim (safe to run twice)            |
 | `npm run db:studio`  | Browse the database in your browser                           |
+| `npm run db:status`  | Is the database up, and are its migrations up to date (works without the server) |
 | `npm run db:deploy`  | Apply migrations that already exist. Safe on the shared database |
 | `npm run db:migrate` | Create a new migration. **Local Docker only**, see below      |
 | `npm run db:reset`   | Wipe and rebuild the database. **Local Docker only**          |
