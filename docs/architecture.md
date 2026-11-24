@@ -35,6 +35,8 @@ To add a feature, copy that layout, then add the new module to `imports` in
 
 `server/src/core/` holds what every feature uses:
 
+- `auth/`: login, through Better Auth (see "Login" below).
+- `config/`: settings several parts read, like which website may call us.
 - `database/`: the one Prisma connection.
 - `errors/`: every error the server sends is `{ code, message }`. Throw a Nest
   exception with a `code` (e.g. `new NotFoundException({ code: 'SHUL_NOT_FOUND', message })`)
@@ -116,6 +118,42 @@ old results. There's no sign-in yet, so new shuls and maggidei shiur are approve
 straight away. Once accounts are built, only the shul's team may post for it, and new
 ones wait for a moderator (NFR-4).
 
+## Login (FR-2)
+
+Login is Better Auth, running inside our server (`server/src/core/auth/`).
+It answers everything under `/auth/` itself: `POST /auth/sign-up/email`,
+`/auth/sign-in/email`, `/auth/sign-out`, `GET /auth/get-session` and the rest
+([its list](https://www.better-auth.com/docs/concepts/api)). `app.setup.ts` hands
+those requests to it before NestJS reads the body, because Better Auth reads the
+body itself. It keeps users, sessions and password hashes in the `User`,
+`Session` and `Account` tables.
+
+The login is an HttpOnly cookie that page scripts can't read, so a script on the
+page can't steal it. A browser on another website can't use it either: Better
+Auth refuses any login request whose `Origin` isn't one of ours (`WEB_ORIGIN`).
+
+**A route that needs an account:**
+
+```ts
+@Post(':id/save')
+@UseGuards(SignedInGuard)
+save(@CurrentUser() user: SignedInUser) { ... }   // user = { id, isModerator }
+```
+
+A guest gets `401 NOT_SIGNED_IN`, which the website shows as "Sign in to do that."
+The guard only checks that *someone* is signed in. Whether *this* person may change
+*this* shul's shiurim is up to the feature's service (NFR-4).
+
+**On the website**, `core/auth.ts` has `useCurrentUser()` (who is signed in, or
+null) and `authClient` (`authClient.signIn.email(...)`, `authClient.signOut()`).
+
+**In API tests**, `signUp(app, data)` from `core/testing/test-app.ts` makes a
+user and returns the `Cookie` to send as them. SQL tests that just need a user
+row use `data.user()`.
+
+**Not built yet:** verification and password reset emails, Google sign-in, and
+the sign-in pages.
+
 ## Database notes
 
 **Why raw SQL.** A shul's location is a PostGIS `geography(Point, 4326)` column.
@@ -146,9 +184,10 @@ behind it. To add a filter, add one line there.
 **Typo-tolerant search.** The search box uses `similarity()` from the `pg_trgm`
 extension, so "gemora" still finds "Gemara".
 
-**Tables not used yet.** `schema.prisma` already has the tables for accounts,
-follows, saves, reports and alerts from the design document. Only Publisher,
-Room, Shiur, Occurrence, Topic, Language and Audience are used so far.
+**Tables not used yet.** `schema.prisma` already has the tables for follows,
+saves, reports and alerts from the design document. Used so far: Publisher,
+Room, Shiur, Occurrence, Topic, Language and Audience, and for login User,
+Session, Account and Verification.
 
 ## Privacy rules the code follows
 
@@ -159,6 +198,8 @@ Room, Shiur, Occurrence, Topic, Language and Audience are used so far.
   names of unapproved maggidei shiur. The map and the shiur page hide those
   names too, and the search box can't find them.
 - Anything in a `VITE_` variable ends up in the public JavaScript. No secrets there.
+- Passwords are stored only as hashes (in `Account.password`). Nobody can make
+  themselves a moderator at sign-up: `isModerator` is set by us, in the database.
 
 ## Tests
 

@@ -47,6 +47,9 @@ don't say how something should work, ask instead of guessing.
   wherever they are. Server: use `STARTS_AT_NY` (map.queries.ts), `nyMoment`
   (portal.queries.ts) and `nyTimeToUtc` (core/time/ny-time.ts). Website:
   format with `timeZone: 'America/New_York'`. Never do your own offset math.
+- Routes that need an account: `@UseGuards(SignedInGuard)` and
+  `@CurrentUser()` from `core/auth/`. Never read the cookie yourself. Who may
+  change what (a shul's own team, a moderator) is checked in the service.
 - Comments: match the style already in the code (see `features/map/`).
   Short, simple words:
   - Top of every file: one line on what it does. Then, if useful, how it fits

@@ -5,9 +5,9 @@
 // After editing this file, create a migration:  npm run db:migrate
 // (needs the local Docker database; see README, "Changing the database").
 //
-// Used by the map so far: Publisher, Room, Shiur, Occurrence, Topic, Language,
-// Audience. The rest are designed for features not built yet (accounts,
-// follows, saves, reports, alerts).
+// Used so far: Publisher, Room, Shiur, Occurrence, Topic, Language, Audience,
+// and for login User, Session, Account, Verification. The rest are designed
+// for features not built yet (follows, saves, reports, alerts).
 //
 // PostGIS: Prisma has no geography type, so Publisher.location is declared
 // Unsupported(). Prisma still creates the column, but can't read or filter
@@ -200,12 +200,15 @@ model Audience {
 
 // ---------------------------------------------------------------- users
 
+// Better Auth (server/src/core/auth/) reads and writes User, Session, Account
+// and Verification. Their fields must match what it expects: see
+// https://www.better-auth.com/docs/concepts/database#core-schema
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
   name          String?
   emailVerified Boolean  @default(false)
-  // Better Auth owns the password/session tables; we don't model them here.
+  image         String?
   homeAddress   String? // optional, private (NFR-5)
   isModerator   Boolean  @default(false)
   darkMode      Boolean  @default(false)
@@ -216,7 +219,10 @@ model User {
   alertReminders  Boolean @default(true)
   snsTopicArn     String? // their own SNS topic for email alerts
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
+  sessions        Session[]
+  accounts        Account[]
   teamMemberships TeamMember[]
   savedShiurim    SavedShiur[]
   follows         Follow[]
@@ -225,6 +231,56 @@ model User {
   sentAlerts      SentAlert[]
   changes         ChangeHistory[]
   topicsLiked     UserTopic[]
+}
+
+// One signed-in browser. The cookie holds `token`.
+model Session {
+  id        String   @id
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// One way to sign in: providerId "credential" (email and password, `password`
+// is a hash, never the password itself) or "google".
+model Account {
+  id                    String    @id
+  userId                String
+  accountId             String
+  providerId            String
+  password              String?
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Short-lived codes: email verification and password reset links.
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
 }
 
 model UserTopic {

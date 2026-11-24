@@ -13,8 +13,11 @@ Back button goes back through the pins and shiurim you opened.
 Shul and maggid shiur pages (FR-10). Posting a shiur at `/portal` (FR-20): a form
 for a weekly or one-time shiur that shows up on the map right away. The shul, maggid
 shiur, room, topic and language can be picked from a list or typed in new; a new shul's
-address is picked from Google's suggestions so it gets a pin. No sign-in yet.
-**Next:** accounts (so only a shul's team can post for it), follows, notifications, moderation.
+address is picked from Google's suggestions so it gets a pin.
+The base for login (FR-2): sign-up and sign-in by email and password, and a check
+that routes use to refuse guests. No sign-in pages yet.
+**Next:** sign-in pages and account settings, saves and follows, changing and
+cancelling shiurim, then notifications and moderation.
 
 ---
 
@@ -39,6 +42,8 @@ server/                  The API (NestJS). Runs on http://localhost:3000
       portal/                posting a shiur (FR-20): /portal/options, POST /portal/shiurim
       health/                /health: is the server up, can it reach the database
     core/                  code every feature uses
+      auth/                  login (Better Auth): /auth/..., SignedInGuard, @CurrentUser()
+      config/                settings several parts read (which website may call us)
       database/              the database connection (Prisma)
       errors/                turns every error into { code, message }
       validation/            checks requests against a Zod schema
@@ -50,6 +55,7 @@ web/                     The website (React + Vite). Runs on http://localhost:51
     routes.tsx             which page each web address shows
     core/                  code every feature uses
       api.ts                 sends requests to the server (get, post); error messages
+      auth.ts                who is signed in (useCurrentUser); sign up, in and out
       config.ts              settings from .env (server URL, Maps key, Map ID)
     components/            pieces several features use (ShiurRow: one shiur in a list;
                              MapPopup: a popup next to a map pin)
@@ -100,7 +106,8 @@ types file to `shared/index.ts`.
 
 ## Getting started
 
-You need **Node 20 or newer** (`node --version`). Get it from https://nodejs.org.
+You need **Node 20.19 or newer** (`node --version`). Older versions can't load
+Better Auth, the login package. Get it from https://nodejs.org.
 On a Mac, `brew install node` also works. After installing, close and reopen your terminal.
 
 ```bash
@@ -117,6 +124,9 @@ Open `.env` and fill in:
    `curl -4 ifconfig.me` and send Reuvi the number.
 2. **The Google Maps keys** (see below). Optional: without them the map is
    grey, but search, lists and filters still work.
+3. **`BETTER_AUTH_SECRET`**: any long random text, for login cookies. Make one
+   with `node -e "console.log(crypto.randomUUID())"`. Optional on your own
+   computer, required on the real server.
 
 Then:
 
