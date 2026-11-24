@@ -22,6 +22,10 @@ export function createAuth(database: BetterAuthOptions['database']) {
     // `|| undefined`: the empty line in .env.example means "not set", not an empty secret.
     secret: process.env.BETTER_AUTH_SECRET || undefined,
     trustedOrigins: webOrigins(),
+    // Refuse login requests from other websites, in tests too: Better Auth
+    // turns this off when NODE_ENV is "test" unless it's set here, so the tests
+    // would check a server that differs from the real one.
+    advanced: { disableOriginCheck: false },
     emailAndPassword: { enabled: true },
     user: {
       additionalFields: {
