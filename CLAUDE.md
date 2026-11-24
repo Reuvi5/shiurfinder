@@ -1,8 +1,9 @@
 # ShiurFinder: team rules
 
 NestJS server (`server/`), React + Vite website (`web/`), shared types
-(`shared/`), PostgreSQL + PostGIS through Prisma. What each file does:
-`docs/architecture.md`.
+(`shared/`), PostgreSQL + PostGIS through Prisma. How the code fits together:
+`docs/architecture.md`. Routes and outside services: `docs/api.md`. What's
+built and what's left: `docs/progress.md`.
 
 The design doc (`docs/ShiurFinder_Software_Design_Document.pdf`) wins over the
 SRS (`docs/Software_Requirements_Specification_SRS.pdf`) and over the code. If
@@ -100,7 +101,7 @@ How to run them and how they're set up: README, "Tests".
 
 - Short and simple, only what's needed.
 - Every PR updates the docs its change affects (README, `docs/architecture.md`,
-  CLAUDE.md).
+  `docs/api.md`, `docs/progress.md`, CLAUDE.md).
 - No AI attribution lines (no "Generated with Claude Code", no Co-Authored-By).
 - If a PR's steps include `npm install`, add: "If it fails with
   `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` (network/antivirus filter), run

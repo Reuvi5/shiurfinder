@@ -16,5 +16,6 @@
 ---
 
 - [ ] Tests added or updated (which FR?), or why none are needed.
-- [ ] Docs updated (README, `docs/architecture.md`, CLAUDE.md) if this changes them.
+- [ ] Docs updated (README, `docs/architecture.md`, `docs/api.md`, CLAUDE.md) if this changes them.
+- [ ] Builds or changes an FR? Its row in `docs/progress.md` updated.
 - [ ] Changes the database? Migration committed, and `npm run db:deploy` run on AWS.
