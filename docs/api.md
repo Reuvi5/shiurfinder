@@ -14,7 +14,7 @@ needs an account (`@UseGuards(SignedInGuard)`, see `server/src/core/auth/`).
 
 | Route | What it does | Sign-in | Input | Reply (in `shared/`) | Errors |
 | --- | --- | --- | --- | --- | --- |
-| `GET /health` | Is the server up, can it reach the database | No | none | `{ status, db, postgis }` | none (`db: "down"` instead) |
+| `GET /health` | Is the server up, can it reach the database | No | none | `{ status, db, postgis }` | none (`db: "down"` instead, only if the database goes down after the server started: it won't start without one. Use `npm run db:status` then) |
 | `GET /map/search` | Pins and the Weekly and Featured lists (FR-5, FR-8) | No | `lat`, `lng` (required); `radiusMiles` (up to 100), `q`, `topic`, `language`, `audience`, `dayOfWeek` (0 = Sunday), `afterTime`, `beforeTime` (`"19:30"`) | `MapSearchResult` (map.ts) | `INVALID_REQUEST` |
 | `GET /map/filters` | The choices the Filters panel offers | No | none | `FilterOptions` (map.ts) | none |
 | `GET /map/shul/:id/today` | The card that opens when a pin is clicked | No | `lat`, `lng` (optional, for distance) | `ShulTodayResult` (map.ts) | `SHUL_NOT_FOUND`, `INVALID_REQUEST` |

@@ -91,6 +91,10 @@ curl "http://localhost:3000/map/search?lat=40.8976&lng=-74.0204&radiusMiles=5"
 
 `/health` should say `"db":"up"` and show a PostGIS version.
 
+Server won't start? Run `npm run db:status`: it says whether the database is
+the cause, without the server. (`/health` can't help then: the server needs
+the database to start.)
+
 ### Google Maps keys
 
 Two keys and a Map ID, from the [Google Cloud console](https://console.cloud.google.com/google/maps-apis):
@@ -123,6 +127,7 @@ Run all of these from the repo root.
 | `npm run build`      | Build the server and website for production                   |
 | `npm run db:seed`    | Add the demo shuls and shiurim (safe to run twice)            |
 | `npm run db:studio`  | Browse the database in your browser                           |
+| `npm run db:status`  | Is the database up, and are its migrations up to date (works without the server) |
 | `npm run db:deploy`  | Apply migrations that already exist. Safe on the shared database |
 | `npm run db:migrate` | Create a new migration. **Local Docker only**, see below      |
 | `npm run db:reset`   | Wipe and rebuild the database. **Local Docker only**          |
