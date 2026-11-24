@@ -26,13 +26,15 @@ shared/                the types the server and website send each other, one fil
 docs/                  SRS, design doc, architecture, API, progress
 ```
 
-Every file starts with a line saying what it does. How the pieces fit:
+Every file starts with a line saying what it does. The full tree, with a line
+for each folder and one-of-a-kind file, and how the pieces fit:
 [docs/architecture.md](docs/architecture.md).
 
 **Adding a feature?** Make a folder for it on both sides, e.g. `server/src/features/shiurim/`
 and `web/src/features/create-shiur/`, and copy the layout of `map/`. Then add the
-module to `server/src/app.module.ts`, the page to `web/src/routes.tsx`, and your
-types file to `shared/index.ts`.
+module to `server/src/app.module.ts`, the page to `web/src/routes.tsx`, your
+types file to `shared/index.ts`, and your folders (plus any new kind of file) to
+the tree in [docs/architecture.md](docs/architecture.md).
 
 ## Stack
 

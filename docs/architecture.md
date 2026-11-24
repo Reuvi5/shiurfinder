@@ -2,6 +2,79 @@
 
 Read this before adding a feature. For setup and commands, see the [README](../README.md).
 
+## Where things are
+
+Every folder, plus the files that are one of a kind. A feature's usual files
+(controller, service, queries, ...) follow `map/`'s pattern, so they're only
+listed there. Every file also starts with a line saying what it does.
+
+```
+server/                    The API (NestJS). Runs on http://localhost:3000
+  prisma/                    schema.prisma (the tables), migrations/, seed.ts (demo data)
+  scripts/                   guard-local-db.js: stops commands that could wipe the shared database
+  src/
+    main.ts                  starts the server
+    app.setup.ts             settings both the real server and the test server get
+    app.module.ts            the list of features the server is made of
+    features/                one folder per feature (anything with routes)
+      map/                     the map (FR-5): the pattern every feature copies
+        map.controller.ts        routes: /map/search, /map/filters, /map/shul/:id/today
+        map.validation.ts        what a request is allowed to contain
+        map.service.ts           the logic: turns rows into what the website shows
+        map.queries.ts           the SQL
+        map.constants.ts         fixed numbers (radius, 7-day window, ...)
+        map.module.ts            tells NestJS which files belong to the feature
+      shiur-page/              one date of a shiur (FR-9): /shiur-page/:occurrenceId
+      publishers/              shul and maggid shiur pages (FR-10): /publishers/:id
+      portal/                  posting a shiur (FR-20): /portal/options, POST /portal/shiurim
+      health/                  /health: is the server up, can it reach the database
+    core/                    code every feature uses
+      auth/                    login (Better Auth): /auth/..., SignedInGuard, @CurrentUser()
+      config/                  which website addresses may call the server
+      database/                the one Prisma connection; test-db.setup.ts readies the test database
+      errors/                  error.filter.ts: turns every error into { code, message }
+      testing/                 test-app.ts (the whole server for API tests), test-data.ts (test rows)
+      time/                    ny-time.ts: New York time to UTC (nyTimeToUtc)
+      validation/              zod-validation.pipe.ts: checks requests against a Zod schema
+
+web/                       The website (React + Vite). Runs on http://localhost:5173
+  src/
+    main.tsx                 starts the website
+    App.tsx                  loads Google Maps and the router
+    routes.tsx               which page each web address shows
+    core/                    code every feature uses
+      api.ts                   get() and post() to the server; the error messages users see
+      auth.ts                  who is signed in (useCurrentUser); sign up, in and out
+      config.ts                settings from .env (server URL, Maps key, Map ID)
+    components/              pieces several features use
+      ShiurRow.tsx             one shiur in a list
+      MapPopup.tsx             a popup below or above a map pin
+    features/
+      map/                   the map screen
+        MapScreen.tsx          the screen; runs the one search both halves use
+        SidePanel.tsx          left half: search, filters, Weekly and Featured lists
+        MapView.tsx            right half: the Google map and pins
+        ShulCard.tsx           the popup when a pin is clicked
+        map.search.ts          what the web address remembers (?shul=&shiur=)
+        map.api.ts             the map's calls to the server
+        ...                    smaller pieces, hooks, helpers
+      shiur-page/            one date of a shiur (FR-9)
+        ShiurCard.tsx          the popup on the map, at the shiur's building
+        ShiurPage.tsx          the same details at /shiur/:id (where Share links go)
+        ShiurInfo.tsx          the details and buttons both of them show
+        shiur-page.format.ts   dates, badges, and the calendar and directions links
+      publisher-page/        shul page (/shul/:id) and maggid shiur page (/maggid/:id)
+      publisher-portal/      the "Post a shiur" form at /portal (FR-20)
+        Combobox.tsx           a list you can pick from or type a new name in
+
+shared/                    the types the server and website send each other
+  common.ts                  types several features use, and the error shape
+  index.ts                   lists every file here
+  <feature>.ts               one file per feature, e.g. map.ts
+
+docs/                      SRS, design doc, architecture, API, progress
+```
+
 ## The big picture
 
 ```
