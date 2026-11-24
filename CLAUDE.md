@@ -3,7 +3,7 @@
 NestJS server (`server/`), React + Vite website (`web/`), shared types
 (`shared/`), PostgreSQL + PostGIS through Prisma. How the code fits together:
 `docs/architecture.md`. Routes and outside services: `docs/api.md`. What's
-built and who owns it: `docs/progress.md`.
+built and what's left: `docs/progress.md`.
 
 The design doc (`docs/ShiurFinder_Software_Design_Document.pdf`) wins over the
 SRS (`docs/Software_Requirements_Specification_SRS.pdf`) and over the code. If

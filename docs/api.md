@@ -68,8 +68,18 @@ wording to `web/src/core/api.ts`.
 
 The Hebrew date uses Node's built-in `Intl`, so it needs no service.
 
-**Planned** (SRS 4.3 and the design doc), not built yet: an email service
-(verification, password reset, invitations, alerts), browser notifications,
-Google sign-in, and Amazon S3 for flyers and logos. The SRS says every service
-must stay in a free tier, and the app must keep working if one fails. Add each
-one here when it's built.
+**Planned** in the design doc ("Build or buy"), not built yet:
+
+| Service             | Will be used for                                         |
+| ------------------- | -------------------------------------------------------- |
+| Amazon SES          | Account emails: verification, password reset, approvals  |
+| AWS SNS             | Alert and reminder emails                                |
+| web-push            | Browser notifications                                    |
+| Google sign-in      | Signing in with Google (through Better Auth)             |
+| Google Routes API   | Walking and driving times                                |
+| Amazon S3           | Flyers, shul logos and maggid shiur photos               |
+| Render              | Hosting the website and server, kept awake by an uptime monitor |
+| Sentry              | Reporting server errors to the team                      |
+
+Every service must stay in a free tier, and the app must keep working if one
+fails (SRS 4.3). Move each one up to the table above when it's built.

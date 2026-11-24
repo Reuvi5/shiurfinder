@@ -5,7 +5,7 @@ shuls and maggidei shiur get one place to post and update their schedules.
 
 **MCON 357** — Oriel Zer, Reuvi Kupchik, Mattan Jackier
 
-**What's built, what's next and who owns each requirement:**
+**What's built and what's left:**
 [docs/progress.md](docs/progress.md).
 
 ---
@@ -206,7 +206,7 @@ In [docs/](docs/):
   with its database diagram
 - [architecture.md](docs/architecture.md): how the code fits together
 - [api.md](docs/api.md): the server's routes, error codes and outside services
-- [progress.md](docs/progress.md): each requirement, whether it's built, and who owns it
+- [progress.md](docs/progress.md): each requirement and whether it's built
 
 The **design doc wins** over the SRS and over the code: when they disagree, fix the
 code, or update the doc on purpose.
