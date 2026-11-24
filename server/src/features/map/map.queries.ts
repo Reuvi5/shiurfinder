@@ -100,7 +100,8 @@ export class MapQueries {
       FROM "Publisher" shul
       JOIN "Shiur"      s ON s."shulId" = shul.id
       JOIN "Occurrence" o ON o."shiurId" = s.id
-      LEFT JOIN "Publisher" rav ON s."maggidShiurId" = rav.id
+      -- An unapproved maggid shiur is left out: no name, and not searchable (NFR-4).
+      LEFT JOIN "Publisher" rav ON s."maggidShiurId" = rav.id AND rav."approved" = true
       LEFT JOIN "Topic"     t   ON s."topicId"    = t.id
       LEFT JOIN "Language"  l   ON s."languageId" = l.id
       LEFT JOIN "Audience"  a   ON s."audienceId" = a.id
@@ -211,7 +212,8 @@ export class MapQueries {
       FROM "Occurrence" o
       JOIN "Shiur"      s    ON o."shiurId" = s.id
       JOIN "Publisher"  shul ON s."shulId"  = shul.id
-      LEFT JOIN "Publisher" rav ON s."maggidShiurId" = rav.id
+      -- An unapproved maggid shiur is left out: no name, and not searchable (NFR-4).
+      LEFT JOIN "Publisher" rav ON s."maggidShiurId" = rav.id AND rav."approved" = true
       LEFT JOIN "Room"      ro  ON s."roomId" = ro.id
       LEFT JOIN "Room"      ro2 ON o."roomId" = ro2.id
       LEFT JOIN "Topic"     t   ON s."topicId"    = t.id

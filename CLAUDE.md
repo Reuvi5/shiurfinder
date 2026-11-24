@@ -45,8 +45,8 @@ don't say how something should work, ask instead of guessing.
   `features/map/tests/filters.test.ts` tests `features/map/filters.ts`.
 - Times: the database stores UTC. Users always see and enter New York time,
   wherever they are. Server: use `STARTS_AT_NY` (map.queries.ts), `nyMoment`
-  (portal.queries.ts) and `nyTimeToUtc` (seed.ts). Website: format with
-  `timeZone: 'America/New_York'`. Never do your own offset math.
+  (portal.queries.ts) and `nyTimeToUtc` (core/time/ny-time.ts). Website:
+  format with `timeZone: 'America/New_York'`. Never do your own offset math.
 - Comments: match the style already in the code (see `features/map/`).
   Short, simple words:
   - Top of every file: one line on what it does. Then, if useful, how it fits

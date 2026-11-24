@@ -156,18 +156,23 @@ Room, Shiur, Occurrence, Topic, Language and Audience are used so far.
 - An unapproved shul returns the same "not found" as a missing one, so nobody
   can see it exists before a moderator approves it (NFR-4). The shul and maggid
   shiur pages do the same, and also hide shiurim at unapproved shuls and the
-  names of unapproved maggidei shiur.
+  names of unapproved maggidei shiur. The map and the shiur page hide those
+  names too, and the search box can't find them.
 - Anything in a `VITE_` variable ends up in the public JavaScript. No secrets there.
 
 ## Tests
 
 - **Unit tests** go in a `tests/` folder beside the code they test
-  (`features/map/tests/filters.test.ts` tests `features/map/filters.ts`) and never touch a database: a service is tested with a fake
-  `*.queries.ts`, so its logic is checked without SQL.
+  (`features/map/tests/filters.test.ts` tests `features/map/filters.ts`) and
+  never touch a database: a service is tested with a fake `*.queries.ts`, so
+  its logic is checked without SQL.
 - **SQL tests** (`*.db.test.ts`) test the `*.queries.ts` files on a real
   Postgres + PostGIS database, because the filters (distance, New York day and
   time, approved only) live in the SQL. `server/src/core/database/test-db.setup.ts`
   checks the database is local and brings its tables up to date first.
+  `TestData` in `server/src/core/testing/test-data.ts` makes the rows and
+  removes them after. Each test file puts its shuls at its own `testPlace`, far
+  from the others, so one file's search never finds another file's rows.
 - **API tests** (also `*.db.test.ts`) send real requests to the whole server
   with `supertest`, to check the parts work together: validation, service, SQL
   and the `{ code, message }` errors. `startTestApp()` in
