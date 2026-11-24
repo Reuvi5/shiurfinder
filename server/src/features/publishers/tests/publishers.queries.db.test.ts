@@ -58,7 +58,7 @@ beforeAll(async () => {
   });
   // A shul where the rav's only date is cancelled: not one of "their shuls".
   const cancelledOnlyShul = await data.shul({ name: 'Bais Cancelled' });
-  await data.shiur({
+  const ravCancelled = await data.shiur({
     title: 'Rav Cancelled',
     shulId: cancelledOnlyShul.id,
     maggidShiurId: rav.id,
@@ -79,6 +79,7 @@ beforeAll(async () => {
     ravAtShul: ravAtShul.occurrenceIds[0],
     ravAlone: ravAlone.occurrenceIds[0],
     ravAtHiddenShul: ravAtHiddenShul.occurrenceIds[0],
+    ravCancelled: ravCancelled.occurrenceIds[0],
   };
 });
 
@@ -106,9 +107,13 @@ describe("FR-10 a shul's page lists", () => {
 });
 
 describe("FR-19 a maggid shiur's page lists", () => {
-  it('their shiurim at approved shuls and with no shul', async () => {
+  it('their shiurim at approved shuls and with no shul, cancelled ones included', async () => {
     const rows = await queries.findUpcoming({ maggidShiurId: ids.rav });
-    expect(rows.map((row) => row.occurrenceId)).toEqual([ids.ravAtShul, ids.ravAlone]);
+    expect(rows.map((row) => row.occurrenceId)).toEqual([
+      ids.ravAtShul,
+      ids.ravAlone,
+      ids.ravCancelled,
+    ]);
   });
 
   it('the approved shuls where they have a date coming up, A to Z', async () => {
