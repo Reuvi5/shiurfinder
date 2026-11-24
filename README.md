@@ -91,6 +91,10 @@ curl "http://localhost:3000/map/search?lat=40.8976&lng=-74.0204&radiusMiles=5"
 
 `/health` should say `"db":"up"` and show a PostGIS version.
 
+Server won't start? Run `npm run db:status`: it says whether the database is
+the cause, without the server. (`/health` can't help then: the server needs
+the database to start.)
+
 ### Google Maps keys
 
 Two keys and a Map ID, from the [Google Cloud console](https://console.cloud.google.com/google/maps-apis):
