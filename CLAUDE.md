@@ -19,8 +19,8 @@ don't say how something should work, ask instead of guessing.
 ## Commands
 
 - `npm run dev`: starts the server and the website.
-- Before a PR: `npm run typecheck` and `npm test`. GitHub also checks format
-  and build, and runs the SQL tests.
+- Before a PR: `npm run typecheck` and `npm test`. GitHub also checks format,
+  build and test coverage (limit in `vitest.config.ts`), and runs the SQL tests.
 - Git hooks do the rest: they format every commit, and run `npm install` after
   a pull that changed `package-lock.json`.
 
