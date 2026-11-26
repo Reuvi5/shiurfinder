@@ -12,3 +12,4 @@ export * from './map';
 export * from './shiur-page';
 export * from './publishers';
 export * from './portal';
+export * from './account';

@@ -46,6 +46,24 @@ describe('FR-2 who is signed in', () => {
   });
 });
 
+describe('FR-4 dark mode at sign-up', () => {
+  it('keeps the dark mode the guest chose in their browser', async () => {
+    const { auth, db } = memoryAuth();
+
+    const { userId } = await signUp(auth, db, { darkMode: true });
+
+    expect(db.user.find((row) => row.id === userId)?.darkMode).toBe(true);
+  });
+
+  it('is off when sign-up leaves it out', async () => {
+    const { auth, db } = memoryAuth();
+
+    const { userId } = await signUp(auth, db);
+
+    expect(db.user.find((row) => row.id === userId)?.darkMode).toBe(false);
+  });
+});
+
 describe('NFR-4 moderators', () => {
   it('says a moderator is one', async () => {
     const { auth, db, service } = memoryAuth();

@@ -1,14 +1,18 @@
-// The account pages' calls to the server (FR-2): sign up, sign in, sign out,
-// and sending the verification link again.
+// The account pages' calls to the server: signing up, in and out (FR-2),
+// and the settings (FR-4).
 //
-// They go through Better Auth's client (core/auth.ts), not core/api.ts. A
-// failed call throws ApiRequestError, like every other call, so pages show
+// Login goes through Better Auth's client (core/auth.ts); settings through
+// core/api.ts. Either way a failed call throws ApiRequestError, so pages show
 // it with messageFor().
 
-import { ApiRequestError } from '../../core/api';
+import { useQuery } from '@tanstack/react-query';
+import type { AccountChanges, AccountSettings } from '@shiurfinder/shared';
+import { ApiRequestError, del, get, patch } from '../../core/api';
 import { authClient } from '../../core/auth';
 import { toApiError, type AuthClientError } from './account.errors';
 import { verifiedUrl } from './account.search';
+
+// ------------- login (Better Auth)
 
 /** Runs a Better Auth call and throws if it failed. */
 async function call(send: () => Promise<{ error: AuthClientError | null }>): Promise<void> {
@@ -21,8 +25,14 @@ async function call(send: () => Promise<{ error: AuthClientError | null }>): Pro
   if (result.error) throw toApiError(result.error);
 }
 
-/** Makes the account and emails the verification link. They aren't signed in yet. */
-export function signUp(form: { name: string; email: string; password: string }, redirect?: string) {
+/**
+ * Makes the account and emails the verification link. They aren't signed in
+ * yet. `darkMode` is the guest's choice, carried into the account.
+ */
+export function signUp(
+  form: { name: string; email: string; password: string; darkMode: boolean },
+  redirect?: string,
+) {
   return call(() =>
     authClient.signUp.email({
       ...form,
@@ -57,4 +67,41 @@ export function sendLinkAgain(email: string, redirect?: string) {
 
 export function signOut() {
   return call(() => authClient.signOut());
+}
+
+/**
+ * Makes useCurrentUser() ask the server again, e.g. after the name changed
+ * or the account was deleted. Otherwise it keeps showing the old one.
+ */
+export function refreshSignedInUser(): void {
+  authClient.$store.notify('$sessionSignal');
+}
+
+// ------------- settings (FR-4)
+
+/** TanStack Query's key for GET /account. */
+export const ACCOUNT_QUERY_KEY = ['account'];
+
+export function fetchSettings(): Promise<AccountSettings> {
+  return get<AccountSettings>('/account');
+}
+
+/** Saves some settings. Returns all of them, as they are now. */
+export function changeSettings(changes: AccountChanges): Promise<AccountSettings> {
+  return patch<AccountSettings>('/account', changes);
+}
+
+/** Deletes the account and all its personal data. */
+export function deleteAccount(): Promise<void> {
+  return del('/account');
+}
+
+/** The signed-in user's settings. Pass false for a guest, so nothing is asked. */
+export function useAccountSettings(signedIn: boolean) {
+  return useQuery({
+    queryKey: ACCOUNT_QUERY_KEY,
+    queryFn: fetchSettings,
+    enabled: signedIn,
+    staleTime: 5 * 60_000,
+  });
 }
