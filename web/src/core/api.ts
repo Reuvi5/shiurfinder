@@ -1,4 +1,4 @@
-// What every call from the website to the server uses: get() and post() to send a
+// What every call from the website to the server uses: get(), post(), patch() and del() to send a
 // request, and messageFor() to turn an error into words for the user.
 //
 // The calls themselves live in each feature's folder (e.g. features/map/map.api.ts),
@@ -95,4 +95,41 @@ export async function post<T>(path: string, body: unknown): Promise<T> {
   }
 
   return (await response.json()) as T;
+}
+
+/** PATCH JSON to a path (change part of something) and return the JSON reply. Errors work like get(). */
+export function patch<T>(path: string, body: unknown): Promise<T> {
+  return send<T>('PATCH', path, body);
+}
+
+/**
+ * DELETE a path and return the JSON reply, or undefined for an empty one
+ * (204). Errors work like get(). Named `del` because `delete` is a keyword.
+ */
+export function del<T = void>(path: string): Promise<T> {
+  return send<T>('DELETE', path);
+}
+
+/** Sends a request with an optional JSON body, for patch() and del(). */
+async function send<T>(method: string, path: string, body?: unknown): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method,
+      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      credentials: 'include',
+    });
+  } catch {
+    throw new ApiRequestError('NETWORK', 'Could not reach the server.');
+  }
+
+  if (!response.ok) {
+    const error: Partial<ApiError> = await response.json().catch(() => ({}));
+    throw new ApiRequestError(error.code ?? 'INTERNAL_ERROR', error.message ?? 'Request failed');
+  }
+
+  // A 204 (or any empty reply) has no JSON to read.
+  const text = await response.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
