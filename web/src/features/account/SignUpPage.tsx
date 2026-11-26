@@ -106,7 +106,7 @@ function CheckEmail({ email, redirect }: { email: string; redirect?: string }) {
         </p>
         {import.meta.env.DEV && (
           <p className="text-slate-500">
-            While developing, emails aren't sent: the link is in the server's console.
+            No email? Until SES is set up on your computer, the link is in the server's console.
           </p>
         )}
       </div>

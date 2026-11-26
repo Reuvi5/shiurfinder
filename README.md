@@ -80,6 +80,11 @@ Open `.env` and fill in:
    If Google sends you back with "Google sign-in didn't work" and the server
    log says `unable to get local issuer certificate` (a network or antivirus
    filter), start with `NODE_OPTIONS=--use-system-ca npm run dev`.
+5. **The four SES values** (`SES_FROM_EMAIL`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`,
+   `AWS_SECRET_ACCESS_KEY`): for real verification and password emails. Ask
+   the teammate who set up SES. Optional: without all four, the links are
+   printed in the server console instead. While SES is in its "sandbox", it
+   only sends to email addresses verified in SES.
 
 Then:
 
