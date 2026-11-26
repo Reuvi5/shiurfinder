@@ -76,7 +76,8 @@ Open `.env` and fill in:
 4. **`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`**: for "Continue with Google".
    Ask Oriel for them. Optional: without them the button says it isn't
    available, and email sign-in still works. Google only lets in the Gmail
-   addresses on the test user list until we publish it (`docs/api.md`).
+   addresses on the test user list until we publish it (`docs/api.md`): ask
+   Oriel to add yours.
    If Google sends you back with "Google sign-in didn't work" and the server
    log says `unable to get local issuer certificate` (a network or antivirus
    filter), start with `NODE_OPTIONS=--use-system-ca npm run dev`.
