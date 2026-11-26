@@ -43,7 +43,7 @@ web/                       The website (React + Vite). Runs on http://localhost:
     App.tsx                  loads Google Maps and the router
     routes.tsx               which page each web address shows
     core/                    code every feature uses
-      api.ts                   get() and post() to the server; the error messages users see
+      api.ts                   get(), post(), patch() and del() to the server; the error messages users see
       auth.ts                  who is signed in (useCurrentUser); sign up, in and out
       config.ts                settings from .env (server URL, Maps key, Map ID)
     components/              pieces several features use
@@ -128,7 +128,7 @@ To add a feature, copy that layout, then add the new module to `imports` in
 and helpers, including `map.api.ts`, its calls to the server. Only things used by
 several features live outside it:
 
-- `core/api.ts`: `get()` and `post()` for sending a request, and the error messages users see.
+- `core/api.ts`: `get()`, `post()`, `patch()` and `del()` for sending a request, and the error messages users see.
 - `core/config.ts`: values from `.env`, including the Map ID. Pins and popups are
   Advanced Markers, which only draw on a map with a real Map ID, so every `<Map>`
   passes `mapId={MAP_ID}`.
