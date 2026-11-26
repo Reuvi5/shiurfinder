@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ShiurFinder</title>
     <meta name="description" content="Find a live shiur near you." />
+    <script>
+      // Dark mode before the page draws, so it doesn't flash white first.
+      // Same rule as web/src/features/account/dark-mode.ts.
+      try {
+        var saved = localStorage.getItem('shiurfinder.darkMode');
+        var deviceDark = matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'true' || (saved !== 'false' && deviceDark)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

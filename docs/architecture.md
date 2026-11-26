@@ -27,6 +27,7 @@ server/                    The API (NestJS). Runs on http://localhost:3000
       shiur-page/              one date of a shiur (FR-9): /shiur-page/:occurrenceId
       publishers/              shul and maggid shiur pages (FR-10): /publishers/:id
       portal/                  posting a shiur (FR-20): /portal/options, POST /portal/shiurim
+      account/                 account settings (FR-4): GET, PATCH and DELETE /account
       health/                  /health: is the server up, can it reach the database
     core/                    code every feature uses
       auth/                    login (Better Auth): /auth/..., SignedInGuard, @CurrentUser(); auth.email.ts: its emails
@@ -50,12 +51,14 @@ web/                       The website (React + Vite). Runs on http://localhost:
       ShiurRow.tsx             one shiur in a list
       MapPopup.tsx             a popup below or above a map pin
     features/
-      account/               sign in and sign up (FR-2)
+      account/               sign in, sign up (FR-2) and account settings (FR-4)
         SignInPage.tsx         /sign-in?redirect=… : signs in, then goes back to that page
         SignUpPage.tsx         /sign-up : makes the account, then "check your email"
-        AccountButton.tsx      "Sign in", or the name and "Sign out", on the map screen
+        AccountPage.tsx        /account : name, topics, alerts, dark mode, sign out, delete
+        AccountButton.tsx      the dark mode switch, and "Sign in" or the user's name, on the map screen
+        useDarkMode.ts         light or dark for every page; dark-mode.ts decides which
         account.search.ts      ?redirect= and ?error=, and that a redirect stays on our site
-        account.api.ts         calls to Better Auth; account.errors.ts turns its errors into ours
+        account.api.ts         its calls; account.errors.ts turns Better Auth's errors into ours
       map/                   the map screen
         MapScreen.tsx          the screen; runs the one search both halves use
         SidePanel.tsx          left half: search, filters, Weekly and Featured lists
@@ -254,6 +257,28 @@ need a user row use `data.user()`.
 **Not built yet:** sending the emails (Amazon SES), password reset, and Google
 sign-in.
 
+## Account settings (FR-4)
+
+`/account` shows the signed-in user's settings from `GET /account`. Each change
+saves on its own with `PATCH /account`, which takes only the fields that
+changed and returns all of them. The user id always comes from the login, never
+the request, so nobody can see or change someone else's account. `UserTopic` has
+no foreign key to `Topic`, so the service checks picked topics exist, and leaves
+out ones removed since.
+
+**Deleting** (`DELETE /account`) deletes the `User` row. The database removes
+everything else of theirs with it (`onDelete: Cascade` in `schema.prisma`):
+sessions, logins, saves, follows, topics, reports, alerts and team places. Change
+history keeps the change but forgets who made it. Add a new table that points at
+a user with `onDelete: Cascade` too, or deleting stops removing all their data
+(FR-4), and add it to the test in `account.db.test.ts`.
+
+**Dark mode** is one choice for every page: the `dark` class on `<html>`, which
+Tailwind's `dark:` styles look for. It's kept in the browser, so guests have it
+too, and copied into the account at sign-up. Signed in, the account's choice
+wins. `index.html` applies it before the page draws, so it doesn't flash white.
+Every new page needs `dark:` styles, or it looks broken in dark mode.
+
 ## Database notes
 
 **Why raw SQL.** A shul's location is a PostGIS `geography(Point, 4326)` column.
@@ -286,8 +311,8 @@ extension, so "gemora" still finds "Gemara".
 
 **Tables not used yet.** `schema.prisma` already has the tables for follows,
 saves, reports and alerts from the design document. Used so far: Publisher,
-Room, Shiur, Occurrence, Topic, Language and Audience, and for login User,
-Session, Account and Verification.
+Room, Shiur, Occurrence, Topic, Language and Audience, for login User,
+Session, Account and Verification, and UserTopic for account settings.
 
 ## Privacy rules the code follows
 

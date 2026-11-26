@@ -9,7 +9,7 @@ that changes it.
 
 ## Summary
 
-- **Must (18):** 10 partly, 8 not started.
+- **Must (18):** 11 partly, 7 not started.
 - **Should (5):** 1 partly, 4 not started.
 - **Sign-in pages are built (FR-2).** Signing in needs a verified email; until
   Amazon SES is set up, the link is in the server console. Save, Follow and
@@ -24,7 +24,7 @@ Update these counts when a row's status changes.
 | FR-1  | Browse without an account              | Must     | Partly      | Every page                                   | Save, Follow and Report are greyed out; they should ask a guest to sign in (needs FR-2)                                                   |
 | FR-2  | Sign up and sign in                    | Must     | Partly      | `/sign-up`, `/sign-in`, Sign in on the map   | Emails are printed in the server console, not sent (Amazon SES); password reset; Google sign-in (Should)                                  |
 | FR-3  | Choose where distance is measured from | Must     | Partly      | `/`: location button and address search      | Walk and drive times ("5 min walk", Google Routes), saving a home address                                                                 |
-| FR-4  | Account settings                       | Must     | Not started |                                              |                                                                                                                                           |
+| FR-4  | Account settings                       | Must     | Partly      | `/account` (click your name on the map)      | Alert choices are saved, but alerts aren't sent yet (FR-15); deleting will also need to remove the user's SNS topic once FR-15 makes them |
 | FR-5  | Map home screen                        | Must     | Partly      | `/`                                          | On a phone, the panel sits above the map instead of sliding up over it; links to My Schedule, Recommended and Account                     |
 | FR-6  | Featured tab                           | Must     | Partly      | `/`, Featured tab                            | "Newly posted" row of flyers, grouping by day, flyers                                                                                     |
 | FR-7  | Weekly tab                             | Must     | Partly      | `/`, Weekly tab                              | The Today / All week choice                                                                                                               |

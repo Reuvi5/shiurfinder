@@ -5,16 +5,26 @@
 // later means adding one route below.
 
 import { Outlet, createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
+import { AccountPage } from './features/account/AccountPage';
 import { parseAccountSearch } from './features/account/account.search';
 import { SignInPage } from './features/account/SignInPage';
 import { SignUpPage } from './features/account/SignUpPage';
+import { DarkModeSync } from './features/account/useDarkMode';
 import { MapScreen } from './features/map/MapScreen';
 import { parseMapSearch } from './features/map/map.search';
 import { PortalPage } from './features/publisher-portal/PortalPage';
 import { PublisherPage } from './features/publisher-page/PublisherPage';
 import { ShiurPage } from './features/shiur-page/ShiurPage';
 
-const rootRoute = createRootRoute({ component: () => <Outlet /> });
+/** Every page. DarkModeSync puts the user's light or dark mode on it (FR-4). */
+const rootRoute = createRootRoute({
+  component: () => (
+    <>
+      <DarkModeSync />
+      <Outlet />
+    </>
+  ),
+});
 
 /** / : the map home screen (FR-5). ?shul=&shiur= say what's open (map.search.ts). */
 const mapRoute = createRoute({
@@ -68,6 +78,13 @@ const signUpRoute = createRoute({
   validateSearch: parseAccountSearch,
 });
 
+/** /account : the signed-in user's settings (FR-4) */
+const accountRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/account',
+  component: AccountPage,
+});
+
 const routeTree = rootRoute.addChildren([
   mapRoute,
   portalRoute,
@@ -76,6 +93,7 @@ const routeTree = rootRoute.addChildren([
   shiurRoute,
   signInRoute,
   signUpRoute,
+  accountRoute,
 ]);
 
 export const router = createRouter({ routeTree });
