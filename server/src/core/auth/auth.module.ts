@@ -7,6 +7,7 @@ import { Global, Module } from '@nestjs/common';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { createAuth } from './auth.config';
+import { ConsoleEmails } from './auth.email';
 import { AUTH, AuthService } from './auth.service';
 
 @Global()
@@ -15,8 +16,9 @@ import { AUTH, AuthService } from './auth.service';
     {
       provide: AUTH,
       // Users, sessions and passwords go in the User, Session and Account tables.
+      // Emails are printed in the console until SES is set up (auth.email.ts).
       useFactory: (prisma: PrismaService) =>
-        createAuth(prismaAdapter(prisma, { provider: 'postgresql' })),
+        createAuth(prismaAdapter(prisma, { provider: 'postgresql' }), new ConsoleEmails()),
       inject: [PrismaService],
     },
     AuthService,

@@ -28,8 +28,8 @@ function readCurrentUser(request: SignedInRequest): unknown {
 
 describe('FR-1 routes that need an account', () => {
   it('lets a signed-in user through, and @CurrentUser() is them', async () => {
-    const { auth, service } = memoryAuth();
-    const { userId, cookie } = await signUp(auth);
+    const { auth, db, service } = memoryAuth();
+    const { userId, cookie } = await signUp(auth, db);
     const request: SignedInRequest = { headers: { cookie } };
 
     expect(await new SignedInGuard(service).canActivate(contextFor(request))).toBe(true);
