@@ -276,7 +276,10 @@ out everywhere and also marks the email verified (the link proves it's theirs).
 An account made with Google can set a password this way too. Deleting an
 account also deletes its unused reset links.
 
-**Not built yet:** sending the emails (Amazon SES).
+**Account emails** (`auth.email.ts`) go through Amazon SES once its four values
+are in `.env`; until then they're printed in the server console. A failed send
+is logged (never with the link) and the request carries on, so sign-up works
+with SES down.
 
 ## Account settings (FR-4)
 
