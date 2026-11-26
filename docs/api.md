@@ -27,8 +27,8 @@ needs an account (`@UseGuards(SignedInGuard)`, see `server/src/core/auth/`).
 | `DELETE /account` | Delete the account and all its personal data; signs them out (FR-4) | Yes | none | nothing (204) | `NOT_SIGNED_IN` |
 | `/auth/...` | Sign up, sign in, sign out, who is signed in, the email link, password reset (FR-2). Answered by Better Auth, not our code. Signing in needs a verified email | No | see [Better Auth's list](https://www.better-auth.com/docs/concepts/api) | Better Auth's own | Better Auth's own, e.g. `EMAIL_NOT_VERIFIED`, `INVALID_EMAIL_OR_PASSWORD` (their wording is in `web/src/core/api.ts` too) |
 
-The portal is open to everyone until accounts are built. Then only a shul's
-own team may post for it (NFR-4).
+The portal is open to everyone until teams are built (FR-18). Then only a
+shul's own team may post for it (NFR-4).
 
 An unapproved shul, maggid shiur or shiur answers the same "not found" as a
 missing one, so nobody can tell it exists before a moderator approves it (NFR-4).

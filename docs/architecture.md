@@ -199,9 +199,9 @@ room, topic or language, then the shiur and its dates. A featured shiur gets one
 date; a weekly one gets 8 weeks of dates (the nightly job in the design doc will keep
 them topped up). The map reads the same tables, so the shiur is on it as soon as the
 request returns. The form then clears TanStack Query's cache so the map doesn't show
-old results. There's no sign-in yet, so new shuls and maggidei shiur are approved
-straight away. Once accounts are built, only the shul's team may post for it, and new
-ones wait for a moderator (NFR-4).
+old results. There are no teams or moderators yet, so new shuls and maggidei shiur are approved
+straight away. Once teams are built (FR-18), only the shul's team may post for it, and new
+ones wait for a moderator (FR-23, NFR-4).
 
 ## Login (FR-2)
 

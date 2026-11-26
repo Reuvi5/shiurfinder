@@ -1,9 +1,10 @@
 // Types for the publisher portal (FR-20): posting a new shiur.
 //
-// No sign-in yet, so the form picks the shul itself, and anything typed in
-// that isn't in a list (a shul, maggid shiur, room, topic, language) is added
-// straight away. Once accounts are built, the shul will come from who is
-// signed in, and new shuls and maggidei shiur will wait for a moderator (NFR-4).
+// No teams yet (FR-18), so the form picks the shul itself, and anything typed
+// in that isn't in a list (a shul, maggid shiur, room, topic, language) is
+// added straight away. Once teams are built, the shul will come from the
+// signed-in user's team, and new shuls and maggidei shiur will wait for a
+// moderator (FR-23, NFR-4).
 
 import type { ShiurKind } from './common';
 
