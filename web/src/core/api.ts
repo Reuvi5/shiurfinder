@@ -25,6 +25,10 @@ const MESSAGES: Record<string, string> = {
   SHIUR_NOT_FOUND: 'That shiur could not be found.',
   PUBLISHER_NOT_FOUND: 'That page could not be found.',
   DATE_PASSED: 'That date and time have already passed. Pick a later one.',
+  // Reports (FR-16, features/reports/).
+  ALREADY_REPORTED: 'You already reported this date.',
+  ALREADY_CANCELLED: 'This date is already cancelled.',
+  REPORT_TOO_LATE: 'This date is over, so it can no longer be reported.',
   NOT_SIGNED_IN: 'Sign in to do that.',
   NO_PERMISSION: "You don't have permission to do that.",
   TOO_MANY_REQUESTS: 'Too many requests. Wait a moment and try again.',

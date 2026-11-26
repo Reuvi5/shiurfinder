@@ -14,6 +14,7 @@ import { ShiurPageModule } from './features/shiur-page/shiur-page.module';
 import { PublishersModule } from './features/publishers/publishers.module';
 import { PortalModule } from './features/portal/portal.module';
 import { AccountModule } from './features/account/account.module';
+import { ReportsModule } from './features/reports/reports.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AccountModule } from './features/account/account.module';
     PublishersModule,
     PortalModule,
     AccountModule,
+    ReportsModule,
   ],
   controllers: [HealthController],
 })
