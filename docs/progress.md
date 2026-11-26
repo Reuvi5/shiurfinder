@@ -56,7 +56,7 @@ Things the design doc plans that aren't one FR.
 | Nightly job that keeps weekly shiurim' dates 8 weeks ahead   | Not started | Today a weekly shiur gets 8 weeks of dates once, when it's posted        |
 | Role check on every change (shul team, delegate, moderator)  | Not started | `SignedInGuard` exists; who may change what comes with FR-17 and FR-18   |
 | Image uploads to Amazon S3 (flyers, logos, photos)           | Not started | Needed by FR-6, FR-9, FR-10, FR-20                                       |
-| Hosting on Render, with an uptime monitor and our own domain | Not started |                                                                          |
+| Hosting on Render, with an uptime monitor and our own domain | Not started | Publishing Google sign-in (FR-2) waits for this: Google needs a home page, privacy and terms pages on our domain |
 | Sentry error reports                                         | Not started |                                                                          |
 
 ## Non-functional requirements
