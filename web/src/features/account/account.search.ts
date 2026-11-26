@@ -45,10 +45,11 @@ export function safeRedirect(redirect: string | undefined): string {
 }
 
 /**
- * Where the verification link leads: our sign-in page, which goes on to
- * `redirect`. Opening the link signs them in first (auth.config.ts on the
- * server), so the sign-in page just passes them through.
+ * Where the server sends the browser back to, after the verification link or
+ * Google sign-in: our sign-in page, which goes on to `redirect`. They're
+ * signed in by then, so the page just passes them through. If it failed, the
+ * server adds ?error= and the page says why.
  */
-export function verifiedUrl(siteOrigin: string, redirect: string | undefined): string {
+export function afterSignInUrl(siteOrigin: string, redirect: string | undefined): string {
   return `${siteOrigin}/sign-in?redirect=${encodeURIComponent(safeRedirect(redirect))}`;
 }
