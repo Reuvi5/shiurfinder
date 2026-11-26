@@ -11,8 +11,9 @@ that changes it.
 
 - **Must (18):** 10 partly, 8 not started.
 - **Should (5):** 1 partly, 4 not started.
-- **Login (FR-2) is the bottleneck.** Finishing it unblocks FR-1, FR-9, FR-10
-  and FR-20, and most of what hasn't started.
+- **Sign-in pages are built (FR-2).** Signing in needs a verified email; until
+  Amazon SES is set up, the link is in the server console. Save, Follow and
+  Report (FR-1, FR-9, FR-10) can now send guests to `/sign-in?redirect=...`.
 
 Update these counts when a row's status changes.
 
@@ -21,7 +22,7 @@ Update these counts when a row's status changes.
 | FR    | What                                   | Priority | Status      | Where to see it                              | Notes                                                                                                                                     |
 | ----- | -------------------------------------- | -------- | ----------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | FR-1  | Browse without an account              | Must     | Partly      | Every page                                   | Save, Follow and Report are greyed out; they should ask a guest to sign in (needs FR-2)                                                   |
-| FR-2  | Sign up and sign in                    | Must     | Partly      | No page yet (`/auth/...` routes)             | Sign-in pages, verification email and password reset (through Amazon SES), Google sign-in (Should)                                        |
+| FR-2  | Sign up and sign in                    | Must     | Partly      | `/sign-up`, `/sign-in`, Sign in on the map   | Emails are printed in the server console, not sent (Amazon SES); password reset; Google sign-in (Should)                                  |
 | FR-3  | Choose where distance is measured from | Must     | Partly      | `/`: location button and address search      | Walk and drive times ("5 min walk", Google Routes), saving a home address                                                                 |
 | FR-4  | Account settings                       | Must     | Not started |                                              |                                                                                                                                           |
 | FR-5  | Map home screen                        | Must     | Partly      | `/`                                          | On a phone, the panel sits above the map instead of sliding up over it; links to My Schedule, Recommended and Account                     |

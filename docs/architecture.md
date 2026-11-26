@@ -29,7 +29,7 @@ server/                    The API (NestJS). Runs on http://localhost:3000
       portal/                  posting a shiur (FR-20): /portal/options, POST /portal/shiurim
       health/                  /health: is the server up, can it reach the database
     core/                    code every feature uses
-      auth/                    login (Better Auth): /auth/..., SignedInGuard, @CurrentUser()
+      auth/                    login (Better Auth): /auth/..., SignedInGuard, @CurrentUser(); auth.email.ts: its emails
       config/                  which website addresses may call the server
       database/                the one Prisma connection; test-db.setup.ts readies the test database
       errors/                  error.filter.ts: turns every error into { code, message }
@@ -50,6 +50,12 @@ web/                       The website (React + Vite). Runs on http://localhost:
       ShiurRow.tsx             one shiur in a list
       MapPopup.tsx             a popup below or above a map pin
     features/
+      account/               sign in and sign up (FR-2)
+        SignInPage.tsx         /sign-in?redirect=… : signs in, then goes back to that page
+        SignUpPage.tsx         /sign-up : makes the account, then "check your email"
+        AccountButton.tsx      "Sign in", or the name and "Sign out", on the map screen
+        account.search.ts      ?redirect= and ?error=, and that a redirect stays on our site
+        account.api.ts         calls to Better Auth; account.errors.ts turns its errors into ours
       map/                   the map screen
         MapScreen.tsx          the screen; runs the one search both halves use
         SidePanel.tsx          left half: search, filters, Weekly and Featured lists
@@ -217,15 +223,36 @@ A guest gets `401 NOT_SIGNED_IN`, which the website shows as "Sign in to do that
 The guard only checks that *someone* is signed in. Whether *this* person may change
 *this* shul's shiurim is up to the feature's service (NFR-4).
 
+**Signing in needs a verified email.** Sign-up emails a link and doesn't sign
+anyone in. Opening the link (within an hour) verifies the email, signs them in,
+and goes to `/sign-in?redirect=…`, which passes them on to the page they came
+from. Signing in before that is refused with `EMAIL_NOT_VERIFIED` and sends a
+new link. The emails are in `core/auth/auth.email.ts`; until Amazon SES is set
+up they're printed in the server console, so copy the link from there.
+
+Because of this, sign-up never says "Email already in use": a taken email gets
+the same "check your email" answer, so nobody can find out who has an account.
+The owner of that email is told someone tried instead. This goes against the
+SRS's example error for FR-2, on purpose.
+
 **On the website**, `core/auth.ts` has `useCurrentUser()` (who is signed in, or
-null) and `authClient` (`authClient.signIn.email(...)`, `authClient.signOut()`).
+null). The pages are in `features/account/`. To send a guest to sign in and
+back again (FR-1):
+
+```tsx
+const here = useRouterState({ select: (state) => state.location.href });
+<Link to="/sign-in" search={{ redirect: here }}>Sign in</Link>
+```
+
+`safeRedirect()` (`account.search.ts`) only goes back to a page on our own
+site, so a link can't send someone who just signed in to a fake copy of it.
 
 **In API tests**, `signUp(app, data)` from `core/testing/test-app.ts` makes a
-user and returns the `Cookie` to send as them. SQL tests that just need a user
-row use `data.user()`.
+verified user and returns the `Cookie` to send as them. SQL tests that just
+need a user row use `data.user()`.
 
-**Not built yet:** verification and password reset emails, Google sign-in, and
-the sign-in pages.
+**Not built yet:** sending the emails (Amazon SES), password reset, and Google
+sign-in.
 
 ## Database notes
 

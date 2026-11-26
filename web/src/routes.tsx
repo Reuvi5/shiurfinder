@@ -5,6 +5,9 @@
 // later means adding one route below.
 
 import { Outlet, createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
+import { parseAccountSearch } from './features/account/account.search';
+import { SignInPage } from './features/account/SignInPage';
+import { SignUpPage } from './features/account/SignUpPage';
 import { MapScreen } from './features/map/MapScreen';
 import { parseMapSearch } from './features/map/map.search';
 import { PortalPage } from './features/publisher-portal/PortalPage';
@@ -49,12 +52,30 @@ const shiurRoute = createRoute({
   component: ShiurPage,
 });
 
+/** /sign-in?redirect=/shiur/456 : sign in, then go back to that page (FR-2) */
+const signInRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sign-in',
+  component: SignInPage,
+  validateSearch: parseAccountSearch,
+});
+
+/** /sign-up?redirect=/shiur/456 : create an account (FR-2) */
+const signUpRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sign-up',
+  component: SignUpPage,
+  validateSearch: parseAccountSearch,
+});
+
 const routeTree = rootRoute.addChildren([
   mapRoute,
   portalRoute,
   publisherRoute,
   maggidRoute,
   shiurRoute,
+  signInRoute,
+  signUpRoute,
 ]);
 
 export const router = createRouter({ routeTree });
