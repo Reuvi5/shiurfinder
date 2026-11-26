@@ -36,6 +36,12 @@ const MESSAGES: Record<string, string> = {
   PASSWORD_TOO_LONG: 'That password is too long.',
   TOKEN_EXPIRED: 'That link has expired. Sign in to get a new one.',
   INVALID_TOKEN: "That link didn't work. Sign in to get a new one.",
+  // Google sign-in (features/account/account.errors.ts).
+  PROVIDER_NOT_FOUND: "Google sign-in isn't available right now. Use your email and password.",
+  GOOGLE_NOT_LINKED:
+    'That email has an account that isn’t verified yet. Sign in with your password to get a new link, then try Google again.',
+  GOOGLE_CANCELLED: 'Google sign-in was cancelled.',
+  GOOGLE_FAILED: "Google sign-in didn't work. Try again, or use your email and password.",
   INTERNAL_ERROR: 'Something went wrong. Try again.',
   NETWORK: 'Something went wrong. Try again.',
 };

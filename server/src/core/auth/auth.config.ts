@@ -5,9 +5,10 @@
 // sees them. Its endpoints: https://www.better-auth.com/docs/concepts/api
 //
 // Signing in waits until the email is verified. The emails themselves are in
-// auth.email.ts.
+// auth.email.ts. "Sign in with Google" is on when GOOGLE_CLIENT_ID and
+// GOOGLE_CLIENT_SECRET are set (googleSignIn below).
 //
-// Not here yet: password reset, and Google sign-in.
+// Not here yet: password reset.
 
 import { betterAuth, type BetterAuthOptions } from 'better-auth';
 import { webOrigins } from '../config/web-origins';
@@ -15,6 +16,24 @@ import type { AccountEmails } from './auth.email';
 
 /** Where Better Auth's endpoints live, e.g. POST /auth/sign-up/email. */
 export const AUTH_PATH = '/auth';
+
+/**
+ * Google sign-in (FR-2, Should), or nothing without its key. Then the Google
+ * button says it isn't available and email and password still work (design
+ * doc, "Errors").
+ *
+ * Google's own verified emails need no link from us. A Google account is
+ * linked to an existing account with the same email (SRS FR-2), but only one
+ * whose email is already verified (Better Auth's default): otherwise someone
+ * could sign up with another person's Gmail, wait for them to use Google, and
+ * share their account.
+ */
+export function googleSignIn(): BetterAuthOptions['socialProviders'] {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return {};
+  return { google: { clientId, clientSecret } };
+}
 
 /**
  * A Better Auth instance. `database` is Prisma on the server, an in-memory
@@ -50,6 +69,7 @@ export function createAuth(database: BetterAuthOptions['database'], emails: Acco
       autoSignInAfterVerification: true,
       sendVerificationEmail: ({ user, url }) => emails.verifyEmail(user.email, url),
     },
+    socialProviders: googleSignIn(),
     user: {
       additionalFields: {
         // input: false, so sign-up can't set it: nobody makes themselves a moderator (NFR-4).

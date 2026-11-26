@@ -19,8 +19,15 @@ import {
   signOut,
   useAccountSettings,
 } from './account.api';
-import { BUTTON, ErrorBox, FIELD, LINK } from './AuthShell';
+import { ErrorBox, FIELD, LINK } from './AuthShell';
 import { useDarkMode } from './useDarkMode';
+
+/**
+ * The name's Save button. Not BUTTON: that one is full width, so beside the
+ * name box it squeezed the box to nothing.
+ */
+const SAVE_BUTTON =
+  'shrink-0 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300';
 
 /** The alert switches, in the order shown. */
 const ALERTS: { key: keyof AlertChoices; label: string }[] = [
@@ -133,11 +140,7 @@ function NameSection({
           className={FIELD}
           aria-label="Name"
         />
-        <button
-          type="submit"
-          disabled={saving || unchanged}
-          className={`${BUTTON} w-auto shrink-0`}
-        >
+        <button type="submit" disabled={saving || unchanged} className={SAVE_BUTTON}>
           Save
         </button>
       </form>

@@ -11,6 +11,7 @@ import { Link, useSearch } from '@tanstack/react-router';
 import { messageFor } from '../../core/api';
 import { sendLinkAgain, signUp } from './account.api';
 import { AuthShell, BUTTON, ErrorBox, FIELD, Field, LINK } from './AuthShell';
+import { GoogleButton } from './GoogleButton';
 import { currentDarkMode } from './useDarkMode';
 
 /** Better Auth's shortest allowed password. */
@@ -44,6 +45,7 @@ export function SignUpPage() {
       <p className="text-sm text-slate-600 dark:text-slate-400">
         To save shiurim, follow shuls and get alerts. You don't need one to browse.
       </p>
+      <GoogleButton redirect={redirect} />
       <form onSubmit={onSubmit} className="space-y-4">
         <ErrorBox message={submit.error ? messageFor(submit.error) : null} />
         <Field label="Name">

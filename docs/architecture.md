@@ -59,6 +59,7 @@ web/                       The website (React + Vite). Runs on http://localhost:
         useDarkMode.ts         light or dark for every page; dark-mode.ts decides which
         account.search.ts      ?redirect= and ?error=, and that a redirect stays on our site
         account.api.ts         its calls; account.errors.ts turns Better Auth's errors into ours
+        GoogleButton.tsx       "Continue with Google", on the sign-in and sign-up pages
       map/                   the map screen
         MapScreen.tsx          the screen; runs the one search both halves use
         SidePanel.tsx          left half: search, filters, Weekly and Featured lists
@@ -254,8 +255,17 @@ site, so a link can't send someone who just signed in to a fake copy of it.
 verified user and returns the `Cookie` to send as them. SQL tests that just
 need a user row use `data.user()`.
 
-**Not built yet:** sending the emails (Amazon SES), password reset, and Google
-sign-in.
+**Google sign-in.** "Continue with Google" (`GoogleButton.tsx`) sends the
+browser to Google, which sends it back through `/auth/callback/google` to
+`/sign-in?redirect=…`, signed in. It's on only when `GOOGLE_CLIENT_ID` and
+`GOOGLE_CLIENT_SECRET` are set (`googleSignIn()` in `auth.config.ts`); without
+them the button says so and email still works. Google's emails count as
+verified. A Google account is linked to an existing account with the same
+email only if that account is already verified, so nobody can sign up with
+someone else's Gmail and wait for them to use Google. If it fails, Google's
+`?error=` is worded by `redirectError()` (`account.errors.ts`).
+
+**Not built yet:** sending the emails (Amazon SES), and password reset.
 
 ## Account settings (FR-4)
 

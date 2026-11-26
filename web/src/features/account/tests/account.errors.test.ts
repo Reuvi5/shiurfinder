@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { messageFor } from '../../../core/api';
-import { linkError, toApiError } from '../account.errors';
+import { redirectError, toApiError } from '../account.errors';
 
 describe('FR-2 sign-in errors', () => {
   it('keeps the code, so the user reads our wording for it', () => {
@@ -39,14 +39,40 @@ describe('FR-2 sign-in errors', () => {
 
 describe('FR-2 a verification link that failed', () => {
   it('says an expired link expired', () => {
-    expect(messageFor(linkError('TOKEN_EXPIRED'))).toBe(
+    expect(messageFor(redirectError('TOKEN_EXPIRED'))).toBe(
       'That link has expired. Sign in to get a new one.',
     );
   });
 
   it("says any other failed link didn't work", () => {
-    for (const code of ['INVALID_TOKEN', 'USER_NOT_FOUND', 'INVALID_USER', 'made-up']) {
-      expect(messageFor(linkError(code))).toBe("That link didn't work. Sign in to get a new one.");
+    for (const code of ['INVALID_TOKEN', 'USER_NOT_FOUND', 'INVALID_USER', 'SOMETHING_NEW']) {
+      expect(messageFor(redirectError(code))).toBe(
+        "That link didn't work. Sign in to get a new one.",
+      );
+    }
+  });
+});
+
+describe('FR-2 Google sign-in that failed', () => {
+  it("says Google isn't available when the server has no key, and to use email", () => {
+    expect(messageFor(toApiError({ code: 'PROVIDER_NOT_FOUND', status: 404 }))).toBe(
+      "Google sign-in isn't available right now. Use your email and password.",
+    );
+  });
+
+  it("explains an unverified account with the same email can't be linked yet", () => {
+    expect(messageFor(redirectError('account_not_linked'))).toContain('isn’t verified yet');
+  });
+
+  it('says it was cancelled when they pressed Cancel on Google', () => {
+    expect(messageFor(redirectError('access_denied'))).toBe('Google sign-in was cancelled.');
+  });
+
+  it('gives a general message for anything else Google sends back', () => {
+    for (const code of ['invalid_code', 'unable_to_get_user_info', 'something_new', '']) {
+      expect(messageFor(redirectError(code))).toBe(
+        "Google sign-in didn't work. Try again, or use your email and password.",
+      );
     }
   });
 });

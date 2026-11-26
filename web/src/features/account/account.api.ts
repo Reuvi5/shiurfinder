@@ -10,7 +10,7 @@ import type { AccountChanges, AccountSettings } from '@shiurfinder/shared';
 import { ApiRequestError, del, get, patch } from '../../core/api';
 import { authClient } from '../../core/auth';
 import { toApiError, type AuthClientError } from './account.errors';
-import { verifiedUrl } from './account.search';
+import { afterSignInUrl } from './account.search';
 
 // ------------- login (Better Auth)
 
@@ -36,7 +36,7 @@ export function signUp(
   return call(() =>
     authClient.signUp.email({
       ...form,
-      callbackURL: verifiedUrl(window.location.origin, redirect),
+      callbackURL: afterSignInUrl(window.location.origin, redirect),
     }),
   );
 }
@@ -50,7 +50,7 @@ export function signIn(form: { email: string; password: string }, redirect?: str
   return call(() =>
     authClient.signIn.email({
       ...form,
-      callbackURL: verifiedUrl(window.location.origin, redirect),
+      callbackURL: afterSignInUrl(window.location.origin, redirect),
     }),
   );
 }
@@ -60,8 +60,20 @@ export function sendLinkAgain(email: string, redirect?: string) {
   return call(() =>
     authClient.sendVerificationEmail({
       email,
-      callbackURL: verifiedUrl(window.location.origin, redirect),
+      callbackURL: afterSignInUrl(window.location.origin, redirect),
     }),
+  );
+}
+
+/**
+ * Sends the browser to Google's sign-in page. Google sends it back through
+ * our server to /sign-in, signed in, or with ?error= if it didn't work.
+ * Fails here with PROVIDER_NOT_FOUND when the server has no Google key.
+ */
+export function signInWithGoogle(redirect?: string) {
+  const back = afterSignInUrl(window.location.origin, redirect);
+  return call(() =>
+    authClient.signIn.social({ provider: 'google', callbackURL: back, errorCallbackURL: back }),
   );
 }
 

@@ -67,6 +67,7 @@ wording to `web/src/core/api.ts`.
 | Google Maps directions link | The Directions buttons | none (a plain link) | Only that button |
 | Google Calendar link and .ics file | Add to Calendar on the shiur page (FR-13) | none (a link, and a file the website builds) | Only those buttons |
 | Better Auth | Accounts and sign-in, inside our own server | `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `WEB_ORIGIN` | The real server won't start without the secret |
+| Google sign-in | "Continue with Google" on the sign-in and sign-up pages (FR-2). Google Cloud project `shiurfinder-515904`, owned by Oriel | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The button says it isn't available; email sign-in still works. While Google's app is in testing, only its test users (up to 100, added on the project's Audience page) can sign in. Publishing needs a hosted site with privacy and terms pages |
 | AWS RDS (PostgreSQL + PostGIS) | The shared database | `DATABASE_URL`, plus your IP on its firewall | The app hangs with no error |
 
 The Hebrew date uses Node's built-in `Intl`, so it needs no service.
@@ -78,7 +79,6 @@ The Hebrew date uses Node's built-in `Intl`, so it needs no service.
 | Amazon SES          | Account emails: verification, password reset, approvals. Until then, the server prints them in its console (`core/auth/auth.email.ts`) |
 | AWS SNS             | Alert and reminder emails                                |
 | web-push            | Browser notifications                                    |
-| Google sign-in      | Signing in with Google (through Better Auth)             |
 | Google Routes API   | Walking and driving times                                |
 | Amazon S3           | Flyers, shul logos and maggid shiur photos               |
 | Render              | Hosting the website and server, kept awake by an uptime monitor |

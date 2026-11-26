@@ -1,8 +1,8 @@
-// /sign-in: email and password (FR-2). Afterwards it goes to ?redirect=, the
-// page that sent them here (FR-1), or the map.
+// /sign-in: email and password, or Google (FR-2). Afterwards it goes to
+// ?redirect=, the page that sent them here (FR-1), or the map.
 //
-// The verification email's link also lands here, already signed in, so it
-// just passes them through. If the link failed, ?error= says why.
+// The verification email's link and Google sign-in also land here, already
+// signed in, so it just passes them through. If either failed, ?error= says why.
 
 import { type FormEvent, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,9 +10,10 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { messageFor } from '../../core/api';
 import { useCurrentUser } from '../../core/auth';
 import { signIn } from './account.api';
-import { linkError } from './account.errors';
+import { redirectError } from './account.errors';
 import { safeRedirect } from './account.search';
 import { AuthShell, BUTTON, ErrorBox, FIELD, Field, LINK } from './AuthShell';
+import { GoogleButton } from './GoogleButton';
 
 export function SignInPage() {
   const { redirect, error } = useSearch({ from: '/sign-in' });
@@ -43,11 +44,12 @@ export function SignInPage() {
   const message = submit.error
     ? messageFor(submit.error)
     : error && !submit.isPending
-      ? messageFor(linkError(error))
+      ? messageFor(redirectError(error))
       : null;
 
   return (
     <AuthShell title="Sign in">
+      <GoogleButton redirect={redirect} />
       <form onSubmit={onSubmit} className="space-y-4">
         <ErrorBox message={message} />
         <Field label="Email">

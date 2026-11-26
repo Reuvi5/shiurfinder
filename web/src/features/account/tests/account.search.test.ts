@@ -2,7 +2,7 @@
 // a link can't send someone off our site.
 
 import { describe, expect, it } from 'vitest';
-import { HOME, parseAccountSearch, safeRedirect, verifiedUrl } from '../account.search';
+import { HOME, parseAccountSearch, safeRedirect, afterSignInUrl } from '../account.search';
 
 describe('FR-2 the sign-in link', () => {
   it('keeps the redirect and the error', () => {
@@ -58,16 +58,16 @@ describe('FR-1 going back after signing in', () => {
 
 describe('FR-2 the verification link', () => {
   it('leads to sign-in on our site, which goes on to the page', () => {
-    expect(verifiedUrl('http://localhost:5173', '/shiur/1?x=1')).toBe(
+    expect(afterSignInUrl('http://localhost:5173', '/shiur/1?x=1')).toBe(
       'http://localhost:5173/sign-in?redirect=%2Fshiur%2F1%3Fx%3D1',
     );
   });
 
   it('goes on to the map when the redirect is missing or unsafe', () => {
-    expect(verifiedUrl('http://localhost:5173', undefined)).toBe(
+    expect(afterSignInUrl('http://localhost:5173', undefined)).toBe(
       'http://localhost:5173/sign-in?redirect=%2F',
     );
-    expect(verifiedUrl('http://localhost:5173', '//evil.example')).toBe(
+    expect(afterSignInUrl('http://localhost:5173', '//evil.example')).toBe(
       'http://localhost:5173/sign-in?redirect=%2F',
     );
   });

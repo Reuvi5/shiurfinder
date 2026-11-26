@@ -18,10 +18,24 @@ export function toApiError(error: AuthClientError): ApiRequestError {
   return new ApiRequestError(code, error.message ?? 'Request failed');
 }
 
+/** The ?error= Better Auth adds after Google sign-in fails, and what it means for us. */
+const GOOGLE_ERRORS: Record<string, string> = {
+  // The email has an account that isn't verified, so it can't be linked.
+  account_not_linked: 'GOOGLE_NOT_LINKED',
+  // They pressed Cancel on Google's page.
+  access_denied: 'GOOGLE_CANCELLED',
+};
+
+/** Verification link errors are upper case (TOKEN_EXPIRED); Google sign-in's are lower case. */
+const LINK_ERROR = /^[A-Z_]+$/;
+
 /**
- * Why a verification link failed, from the ?error= the server adds. An
- * expired link says so; anything else (edited, already used) is "didn't work".
+ * Why coming back to /sign-in failed, from the ?error= the server adds: a
+ * verification link (expired, or edited or used) or Google sign-in.
  */
-export function linkError(code: string): ApiRequestError {
-  return new ApiRequestError(code === 'TOKEN_EXPIRED' ? code : 'INVALID_TOKEN', code);
+export function redirectError(code: string): ApiRequestError {
+  if (LINK_ERROR.test(code)) {
+    return new ApiRequestError(code === 'TOKEN_EXPIRED' ? code : 'INVALID_TOKEN', code);
+  }
+  return new ApiRequestError(GOOGLE_ERRORS[code] ?? 'GOOGLE_FAILED', code);
 }
