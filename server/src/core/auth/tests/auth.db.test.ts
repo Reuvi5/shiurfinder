@@ -66,13 +66,33 @@ describe('FR-2 sign up and sign in', () => {
     expect(login.password).not.toContain('long-password');
   });
 
-  it('signs in again with the same email and password', async () => {
+  it('refuses to sign in until the email is verified', async () => {
     const email = uniqueEmail();
     const up = await request(app.getHttpServer())
       .post('/auth/sign-up/email')
       .send({ name: 'Test User', email, password: 'long-password' })
       .expect(200);
     data.track({ userId: up.body.user.id });
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/sign-in/email')
+      .send({ email, password: 'long-password' });
+
+    expect(up.body.token).toBeNull();
+    expect(response.status).toBe(403);
+    expect(response.body.code).toBe('EMAIL_NOT_VERIFIED');
+    expect(response.headers['set-cookie']).toBeUndefined();
+  });
+
+  it('signs in with the same email and password once verified', async () => {
+    const email = uniqueEmail();
+    const up = await request(app.getHttpServer())
+      .post('/auth/sign-up/email')
+      .send({ name: 'Test User', email, password: 'long-password' })
+      .expect(200);
+    data.track({ userId: up.body.user.id });
+    // What opening the link does (the link itself: auth.config.test.ts).
+    await prisma.user.update({ where: { email }, data: { emailVerified: true } });
 
     const right = await request(app.getHttpServer())
       .post('/auth/sign-in/email')
@@ -86,7 +106,7 @@ describe('FR-2 sign up and sign in', () => {
     expect(wrong.status).toBe(401);
   });
 
-  it('refuses a second account with the same email', async () => {
+  it("doesn't make a second account with the same email, or say it's taken", async () => {
     const email = uniqueEmail();
     const first = await request(app.getHttpServer())
       .post('/auth/sign-up/email')
@@ -98,7 +118,10 @@ describe('FR-2 sign up and sign in', () => {
       .post('/auth/sign-up/email')
       .send({ name: 'Someone Else', email, password: 'other-password' });
 
-    expect(second.status).toBeGreaterThanOrEqual(400);
+    // The same answer as a new sign-up, so nobody can check who has an
+    // account. The owner gets an email instead (auth.config.test.ts).
+    expect(second.status).toBe(200);
+    expect(second.body.token).toBeNull();
     expect(await prisma.user.count({ where: { email } })).toBe(1);
   });
 });

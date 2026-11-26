@@ -22,7 +22,7 @@ needs an account (`@UseGuards(SignedInGuard)`, see `server/src/core/auth/`).
 | `GET /publishers/:id` | A shul's or maggid shiur's page (FR-10). Check `type` in the reply | No | none | `PublisherPageResult` (publishers.ts) | `PUBLISHER_NOT_FOUND` |
 | `GET /portal/options` | What the "Post a shiur" form's lists offer (FR-20) | No, for now | none | `PortalOptions` (portal.ts) | none |
 | `POST /portal/shiurim` | Post a weekly or featured shiur (FR-20) | No, for now | body: `NewShiur` (portal.ts) | `NewShiurResult` (portal.ts) | `INVALID_REQUEST`, `SHUL_NOT_FOUND`, `DATE_PASSED` |
-| `/auth/...` | Sign up, sign in, sign out, who is signed in (FR-2). Answered by Better Auth, not our code | No | see [Better Auth's list](https://www.better-auth.com/docs/concepts/api) | Better Auth's own | Better Auth's own |
+| `/auth/...` | Sign up, sign in, sign out, who is signed in, the email link (FR-2). Answered by Better Auth, not our code. Signing in needs a verified email | No | see [Better Auth's list](https://www.better-auth.com/docs/concepts/api) | Better Auth's own | Better Auth's own, e.g. `EMAIL_NOT_VERIFIED`, `INVALID_EMAIL_OR_PASSWORD` (their wording is in `web/src/core/api.ts` too) |
 
 The portal is open to everyone until accounts are built. Then only a shul's
 own team may post for it (NFR-4).
@@ -72,7 +72,7 @@ The Hebrew date uses Node's built-in `Intl`, so it needs no service.
 
 | Service             | Will be used for                                         |
 | ------------------- | -------------------------------------------------------- |
-| Amazon SES          | Account emails: verification, password reset, approvals  |
+| Amazon SES          | Account emails: verification, password reset, approvals. Until then, the server prints them in its console (`core/auth/auth.email.ts`) |
 | AWS SNS             | Alert and reminder emails                                |
 | web-push            | Browser notifications                                    |
 | Google sign-in      | Signing in with Google (through Better Auth)             |

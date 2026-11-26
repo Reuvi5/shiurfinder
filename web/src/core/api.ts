@@ -28,6 +28,14 @@ const MESSAGES: Record<string, string> = {
   NOT_SIGNED_IN: 'Sign in to do that.',
   NO_PERMISSION: "You don't have permission to do that.",
   TOO_MANY_REQUESTS: 'Too many requests. Wait a moment and try again.',
+  // Login (FR-2): Better Auth's own codes (features/account/).
+  INVALID_EMAIL_OR_PASSWORD: 'Wrong email or password.',
+  EMAIL_NOT_VERIFIED: 'Verify your email first. We just sent you a new link.',
+  INVALID_EMAIL: 'That email address is not valid.',
+  PASSWORD_TOO_SHORT: 'Your password needs at least 8 characters.',
+  PASSWORD_TOO_LONG: 'That password is too long.',
+  TOKEN_EXPIRED: 'That link has expired. Sign in to get a new one.',
+  INVALID_TOKEN: "That link didn't work. Sign in to get a new one.",
   INTERNAL_ERROR: 'Something went wrong. Try again.',
   NETWORK: 'Something went wrong. Try again.',
 };

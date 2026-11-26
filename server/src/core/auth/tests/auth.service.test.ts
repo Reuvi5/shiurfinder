@@ -7,8 +7,8 @@ import { memoryAuth, signUp } from './memory-auth';
 
 describe('FR-2 who is signed in', () => {
   it("finds the user from their login cookie, and they aren't a moderator", async () => {
-    const { auth, service } = memoryAuth();
-    const { userId, cookie } = await signUp(auth);
+    const { auth, db, service } = memoryAuth();
+    const { userId, cookie } = await signUp(auth, db);
 
     expect(await service.signedInUser({ cookie })).toEqual({ id: userId, isModerator: false });
   });
@@ -28,8 +28,8 @@ describe('FR-2 who is signed in', () => {
   });
 
   it('returns null after the user signs out', async () => {
-    const { auth, service } = memoryAuth();
-    const { cookie } = await signUp(auth);
+    const { auth, db, service } = memoryAuth();
+    const { cookie } = await signUp(auth, db);
 
     await auth.api.signOut({ headers: new Headers({ cookie }) });
 
@@ -37,9 +37,9 @@ describe('FR-2 who is signed in', () => {
   });
 
   it("doesn't mix up two users", async () => {
-    const { auth, service } = memoryAuth();
-    const first = await signUp(auth);
-    const second = await signUp(auth);
+    const { auth, db, service } = memoryAuth();
+    const first = await signUp(auth, db);
+    const second = await signUp(auth, db);
 
     expect((await service.signedInUser({ cookie: first.cookie }))?.id).toBe(first.userId);
     expect((await service.signedInUser({ cookie: second.cookie }))?.id).toBe(second.userId);
@@ -49,7 +49,7 @@ describe('FR-2 who is signed in', () => {
 describe('NFR-4 moderators', () => {
   it('says a moderator is one', async () => {
     const { auth, db, service } = memoryAuth();
-    const { userId, cookie } = await signUp(auth);
+    const { userId, cookie } = await signUp(auth, db);
     // Only we make moderators, straight in the database.
     db.user.find((row) => row.id === userId)!.isModerator = true;
 
@@ -60,7 +60,7 @@ describe('NFR-4 moderators', () => {
     const { auth, db } = memoryAuth();
 
     // Better Auth either refuses the field or ignores it. Either way, no moderator.
-    await signUp(auth, { isModerator: true }).catch(() => undefined);
+    await signUp(auth, db, { isModerator: true }).catch(() => undefined);
 
     expect(db.user.some((row) => row.isModerator === true)).toBe(false);
   });
