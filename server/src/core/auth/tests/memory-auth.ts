@@ -8,9 +8,9 @@ import { createAuth } from '../auth.config';
 import type { AccountEmails } from '../auth.email';
 import { AuthService } from '../auth.service';
 
-/** One email login sent. `url` is only on verification emails. */
+/** One email login sent. `url` is on verification and reset emails. */
 export interface SentEmail {
-  kind: 'verify' | 'already-signed-up';
+  kind: 'verify' | 'already-signed-up' | 'reset-password';
   to: string;
   url?: string;
 }
@@ -25,6 +25,10 @@ class RecordedEmails implements AccountEmails {
 
   async alreadySignedUp(to: string): Promise<void> {
     this.sent.push({ kind: 'already-signed-up', to });
+  }
+
+  async resetPassword(to: string, url: string): Promise<void> {
+    this.sent.push({ kind: 'reset-password', to, url });
   }
 }
 

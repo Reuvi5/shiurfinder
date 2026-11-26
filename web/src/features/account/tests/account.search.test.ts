@@ -2,7 +2,13 @@
 // a link can't send someone off our site.
 
 import { describe, expect, it } from 'vitest';
-import { HOME, parseAccountSearch, safeRedirect, afterSignInUrl } from '../account.search';
+import {
+  afterSignInUrl,
+  HOME,
+  parseAccountSearch,
+  parseResetSearch,
+  safeRedirect,
+} from '../account.search';
 
 describe('FR-2 the sign-in link', () => {
   it('keeps the redirect and the error', () => {
@@ -70,5 +76,20 @@ describe('FR-2 the verification link', () => {
     expect(afterSignInUrl('http://localhost:5173', '//evil.example')).toBe(
       'http://localhost:5173/sign-in?redirect=%2F',
     );
+  });
+});
+
+describe('FR-2 the reset password link', () => {
+  it('keeps the token and the error', () => {
+    expect(parseResetSearch({ token: 'abc', error: 'INVALID_TOKEN' })).toEqual({
+      token: 'abc',
+      error: 'INVALID_TOKEN',
+    });
+  });
+
+  it('has no token when it is missing, empty or not text', () => {
+    expect(parseResetSearch({}).token).toBeUndefined();
+    expect(parseResetSearch({ token: '' }).token).toBeUndefined();
+    expect(parseResetSearch({ token: ['abc'] }).token).toBeUndefined();
   });
 });

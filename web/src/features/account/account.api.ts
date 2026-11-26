@@ -77,6 +77,24 @@ export function signInWithGoogle(redirect?: string) {
   );
 }
 
+/**
+ * Emails a link to choose a new password. The same answer whether or not the
+ * email has an account, so nobody can check who does.
+ */
+export function askForResetLink(email: string) {
+  return call(() =>
+    authClient.requestPasswordReset({
+      email,
+      redirectTo: `${window.location.origin}/reset-password`,
+    }),
+  );
+}
+
+/** Sets the new password, with the token from the reset link. Signs them out everywhere. */
+export function chooseNewPassword(token: string, newPassword: string) {
+  return call(() => authClient.resetPassword({ token, newPassword }));
+}
+
 export function signOut() {
   return call(() => authClient.signOut());
 }

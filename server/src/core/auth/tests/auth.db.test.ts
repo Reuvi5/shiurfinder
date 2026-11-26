@@ -158,3 +158,38 @@ describe('FR-1 routes that need an account', () => {
     await request(app.getHttpServer()).get('/test-who-am-i').set('Cookie', cookie).expect(200);
   });
 });
+
+describe('FR-2 forgot password', () => {
+  it('saves the reset token, and a new password works once verified that way', async () => {
+    const email = uniqueEmail();
+    const up = await request(app.getHttpServer())
+      .post('/auth/sign-up/email')
+      .send({ name: 'Test User', email, password: 'long-password' })
+      .expect(200);
+    const userId: string = up.body.user.id;
+    data.track({ userId });
+
+    await request(app.getHttpServer())
+      .post('/auth/request-password-reset')
+      .set('Origin', WEBSITE)
+      .send({ email, redirectTo: `${WEBSITE}/reset-password` })
+      .expect(200);
+    // The email's link carries this token (the email itself: password-reset.test.ts).
+    const saved = await prisma.verification.findFirstOrThrow({
+      where: { value: userId, identifier: { startsWith: 'reset-password:' } },
+    });
+    const token = saved.identifier.replace('reset-password:', '');
+
+    await request(app.getHttpServer())
+      .post('/auth/reset-password')
+      .set('Origin', WEBSITE)
+      .send({ token, newPassword: 'new-password-1' })
+      .expect(200);
+    const signIn = await request(app.getHttpServer())
+      .post('/auth/sign-in/email')
+      .send({ email, password: 'new-password-1' });
+
+    expect(signIn.status).toBe(200);
+    expect(await prisma.verification.count({ where: { id: saved.id } })).toBe(0);
+  });
+});

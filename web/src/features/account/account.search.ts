@@ -53,3 +53,19 @@ export function safeRedirect(redirect: string | undefined): string {
 export function afterSignInUrl(siteOrigin: string, redirect: string | undefined): string {
   return `${siteOrigin}/sign-in?redirect=${encodeURIComponent(safeRedirect(redirect))}`;
 }
+
+/** /reset-password's search params, set by the server when the reset link is opened. */
+export interface ResetSearch {
+  /** Proves the link came from the email. Sent back with the new password. */
+  token?: string;
+  /** "INVALID_TOKEN" when the link was made up, used, or over an hour old. */
+  error?: string;
+}
+
+/** Keeps only the params we know, like parseAccountSearch. */
+export function parseResetSearch(search: Record<string, unknown>): ResetSearch {
+  return {
+    token: typeof search.token === 'string' && search.token ? search.token : undefined,
+    error: typeof search.error === 'string' ? search.error : undefined,
+  };
+}

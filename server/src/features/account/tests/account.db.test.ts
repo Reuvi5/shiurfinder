@@ -160,6 +160,14 @@ describe('FR-4 deleting the account', () => {
     await prisma.pushSubscription.create({
       data: { userId, endpoint: `https://push.example/${userId}`, p256dh: 'k', auth: 'a' },
     });
+    await prisma.verification.create({
+      data: {
+        id: `reset-${userId}`,
+        identifier: `reset-password:${userId}-token`,
+        value: userId,
+        expiresAt: new Date(Date.now() + 3_600_000),
+      },
+    });
     const change = await prisma.changeHistory.create({
       data: { shiurId: shiur.id, changedById: userId, summary: 'created' },
     });
@@ -177,6 +185,7 @@ describe('FR-4 deleting the account', () => {
     expect(await prisma.report.count({ where: { reportedById: userId } })).toBe(0);
     expect(await prisma.sentAlert.count({ where })).toBe(0);
     expect(await prisma.pushSubscription.count({ where })).toBe(0);
+    expect(await prisma.verification.count({ where: { value: userId } })).toBe(0);
     // The shiur's history stays, without who made the change.
     expect(
       (await prisma.changeHistory.findUniqueOrThrow({ where: { id: change.id } })).changedById,

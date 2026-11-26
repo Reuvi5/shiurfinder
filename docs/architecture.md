@@ -54,6 +54,8 @@ web/                       The website (React + Vite). Runs on http://localhost:
       account/               sign in, sign up (FR-2) and account settings (FR-4)
         SignInPage.tsx         /sign-in?redirect=… : signs in, then goes back to that page
         SignUpPage.tsx         /sign-up : makes the account, then "check your email"
+        ForgotPasswordPage.tsx /forgot-password : emails a link to choose a new password
+        ResetPasswordPage.tsx  /reset-password?token=… : where that link leads; sets the new one
         AccountPage.tsx        /account : name, topics, alerts, dark mode, sign out, delete
         AccountButton.tsx      the dark mode switch, and "Sign in" or the user's name, on the map screen
         useDarkMode.ts         light or dark for every page; dark-mode.ts decides which
@@ -265,7 +267,16 @@ email only if that account is already verified, so nobody can sign up with
 someone else's Gmail and wait for them to use Google. If it fails, Google's
 `?error=` is worded by `redirectError()` (`account.errors.ts`).
 
-**Not built yet:** sending the emails (Amazon SES), and password reset.
+**Forgot password.** "Forgot password?" on the sign-in page goes to
+`/forgot-password`, which emails a link (printed in the console, like the
+verification link). It answers the same whether or not the email has an
+account. The link works once, for an hour, and goes through the server to
+`/reset-password?token=…`, or `?error=INVALID_TOKEN`. A new password signs them
+out everywhere and also marks the email verified (the link proves it's theirs).
+An account made with Google can set a password this way too. Deleting an
+account also deletes its unused reset links.
+
+**Not built yet:** sending the emails (Amazon SES).
 
 ## Account settings (FR-4)
 

@@ -8,7 +8,7 @@
 // auth.email.ts. "Sign in with Google" is on when GOOGLE_CLIENT_ID and
 // GOOGLE_CLIENT_SECRET are set (googleSignIn below).
 //
-// Not here yet: password reset.
+// "Forgot password?" emails a link to choose a new one (sendResetPassword).
 
 import { betterAuth, type BetterAuthOptions } from 'better-auth';
 import { webOrigins } from '../config/web-origins';
@@ -37,10 +37,10 @@ export function googleSignIn(): BetterAuthOptions['socialProviders'] {
 
 /**
  * A Better Auth instance. `database` is Prisma on the server, an in-memory
- * store in unit tests. `emails` sends the verification links.
+ * store in unit tests. `emails` sends login's emails (auth.email.ts).
  */
 export function createAuth(database: BetterAuthOptions['database'], emails: AccountEmails) {
-  return betterAuth({
+  const auth = betterAuth({
     database,
     basePath: AUTH_PATH,
     baseURL: process.env.BETTER_AUTH_URL ?? `http://localhost:${process.env.PORT ?? 3000}`,
@@ -59,6 +59,20 @@ export function createAuth(database: BetterAuthOptions['database'], emails: Acco
       // has an account. The owner of that email gets told instead.
       requireEmailVerification: true,
       onExistingUserSignUp: ({ user }) => emails.alreadySignedUp(user.email),
+      // "Forgot password?" (FR-2). The link works once, for an hour. An email
+      // with no account gets the same answer and no email, so nobody learns
+      // who has one.
+      sendResetPassword: ({ user, url }) => emails.resetPassword(user.email, url),
+      // A new password signs them out everywhere else: whoever knew the old
+      // one (the reason to reset, sometimes) is shut out.
+      revokeSessionsOnPasswordReset: true,
+      // The reset link came to their inbox, which proves the email is theirs,
+      // like the verification link. Without this they'd reset, then still be
+      // told to verify before signing in.
+      onPasswordReset: async ({ user }) => {
+        const context = await auth.$context;
+        await context.internalAdapter.updateUser(user.id, { emailVerified: true });
+      },
     },
     emailVerification: {
       sendOnSignUp: true,
@@ -80,6 +94,7 @@ export function createAuth(database: BetterAuthOptions['database'], emails: Acco
       },
     },
   });
+  return auth;
 }
 
 export type Auth = ReturnType<typeof createAuth>;

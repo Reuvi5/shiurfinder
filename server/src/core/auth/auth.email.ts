@@ -1,5 +1,6 @@
-// The emails login sends (FR-2): the link that verifies an email, and "you
-// already have an account" when someone signs up with a taken email.
+// The emails login sends (FR-2): the link that verifies an email, "you
+// already have an account" when someone signs up with a taken email, and the
+// link to choose a new password.
 //
 // Until Amazon SES is set up (design doc, "Build or buy"), they're printed in
 // the server console: copy the link from there. auth.config.ts decides when
@@ -14,6 +15,8 @@ export interface AccountEmails {
   verifyEmail(to: string, url: string): Promise<void>;
   /** Someone tried to sign up with `to`, which already has an account. */
   alreadySignedUp(to: string): Promise<void>;
+  /** The link to choose a new password ("Forgot password?"). */
+  resetPassword(to: string, url: string): Promise<void>;
 }
 
 /** Prints each email in the server console instead of sending it. */
@@ -29,5 +32,9 @@ export class ConsoleEmails implements AccountEmails {
       `Someone tried to sign up as ${to}, which already has an account. ` +
         `They'd be told to sign in at ${webOrigins()[0]}/sign-in`,
     );
+  }
+
+  async resetPassword(to: string, url: string): Promise<void> {
+    this.logger.log(`New password for ${to} (until SES is set up, open this link): ${url}`);
   }
 }

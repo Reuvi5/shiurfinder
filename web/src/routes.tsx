@@ -6,7 +6,9 @@
 
 import { Outlet, createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
 import { AccountPage } from './features/account/AccountPage';
-import { parseAccountSearch } from './features/account/account.search';
+import { parseAccountSearch, parseResetSearch } from './features/account/account.search';
+import { ForgotPasswordPage } from './features/account/ForgotPasswordPage';
+import { ResetPasswordPage } from './features/account/ResetPasswordPage';
 import { SignInPage } from './features/account/SignInPage';
 import { SignUpPage } from './features/account/SignUpPage';
 import { DarkModeSync } from './features/account/useDarkMode';
@@ -85,6 +87,21 @@ const accountRoute = createRoute({
   component: AccountPage,
 });
 
+/** /forgot-password : email a link to choose a new password (FR-2) */
+const forgotPasswordRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/forgot-password',
+  component: ForgotPasswordPage,
+});
+
+/** /reset-password?token=… : choose the new password; the email's link opens it (FR-2) */
+const resetPasswordRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/reset-password',
+  component: ResetPasswordPage,
+  validateSearch: parseResetSearch,
+});
+
 const routeTree = rootRoute.addChildren([
   mapRoute,
   portalRoute,
@@ -94,6 +111,8 @@ const routeTree = rootRoute.addChildren([
   signInRoute,
   signUpRoute,
   accountRoute,
+  forgotPasswordRoute,
+  resetPasswordRoute,
 ]);
 
 export const router = createRouter({ routeTree });

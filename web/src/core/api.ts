@@ -36,6 +36,7 @@ const MESSAGES: Record<string, string> = {
   PASSWORD_TOO_LONG: 'That password is too long.',
   TOKEN_EXPIRED: 'That link has expired. Sign in to get a new one.',
   INVALID_TOKEN: "That link didn't work. Sign in to get a new one.",
+  RESET_LINK_INVALID: 'That link has expired or was already used. Ask for a new one.',
   // Google sign-in (features/account/account.errors.ts).
   PROVIDER_NOT_FOUND: "Google sign-in isn't available right now. Use your email and password.",
   GOOGLE_NOT_LINKED:

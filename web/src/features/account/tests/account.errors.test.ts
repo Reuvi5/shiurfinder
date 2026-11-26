@@ -2,8 +2,8 @@
 // end up as the same messages as every other call.
 
 import { describe, expect, it } from 'vitest';
-import { messageFor } from '../../../core/api';
-import { redirectError, toApiError } from '../account.errors';
+import { ApiRequestError, messageFor } from '../../../core/api';
+import { redirectError, resetError, toApiError } from '../account.errors';
 
 describe('FR-2 sign-in errors', () => {
   it('keeps the code, so the user reads our wording for it', () => {
@@ -74,5 +74,20 @@ describe('FR-2 Google sign-in that failed', () => {
         "Google sign-in didn't work. Try again, or use your email and password.",
       );
     }
+  });
+});
+
+describe('FR-2 a reset that failed', () => {
+  it('says to ask for a new link when the reset link is no good', () => {
+    expect(messageFor(resetError(new ApiRequestError('INVALID_TOKEN', '')))).toBe(
+      'That link has expired or was already used. Ask for a new one.',
+    );
+  });
+
+  it('keeps any other error as it was', () => {
+    const tooShort = new ApiRequestError('PASSWORD_TOO_SHORT', '');
+
+    expect(resetError(tooShort)).toBe(tooShort);
+    expect(messageFor(resetError(new Error('boom')))).toBe('Something went wrong. Try again.');
   });
 });
