@@ -39,3 +39,13 @@ export function redirectError(code: string): ApiRequestError {
   }
   return new ApiRequestError(GOOGLE_ERRORS[code] ?? 'GOOGLE_FAILED', code);
 }
+
+/**
+ * A reset failure in words for the reset page. A bad link there means "ask
+ * for a new one", not "sign in" (which is what INVALID_TOKEN says elsewhere).
+ */
+export function resetError(error: unknown): unknown {
+  return error instanceof ApiRequestError && error.code === 'INVALID_TOKEN'
+    ? new ApiRequestError('RESET_LINK_INVALID', error.message)
+    : error;
+}

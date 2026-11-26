@@ -25,7 +25,7 @@ needs an account (`@UseGuards(SignedInGuard)`, see `server/src/core/auth/`).
 | `GET /account` | The signed-in user's settings, and every topic they can pick (FR-4) | Yes | none | `AccountSettings` (account.ts) | `NOT_SIGNED_IN` |
 | `PATCH /account` | Change some settings; anything left out stays. Returns all of them (FR-4) | Yes | body: `AccountChanges` (account.ts) | `AccountSettings` (account.ts) | `NOT_SIGNED_IN`, `INVALID_REQUEST` (also for a topic that doesn't exist) |
 | `DELETE /account` | Delete the account and all its personal data; signs them out (FR-4) | Yes | none | nothing (204) | `NOT_SIGNED_IN` |
-| `/auth/...` | Sign up, sign in, sign out, who is signed in, the email link (FR-2). Answered by Better Auth, not our code. Signing in needs a verified email | No | see [Better Auth's list](https://www.better-auth.com/docs/concepts/api) | Better Auth's own | Better Auth's own, e.g. `EMAIL_NOT_VERIFIED`, `INVALID_EMAIL_OR_PASSWORD` (their wording is in `web/src/core/api.ts` too) |
+| `/auth/...` | Sign up, sign in, sign out, who is signed in, the email link, password reset (FR-2). Answered by Better Auth, not our code. Signing in needs a verified email | No | see [Better Auth's list](https://www.better-auth.com/docs/concepts/api) | Better Auth's own | Better Auth's own, e.g. `EMAIL_NOT_VERIFIED`, `INVALID_EMAIL_OR_PASSWORD` (their wording is in `web/src/core/api.ts` too) |
 
 The portal is open to everyone until accounts are built. Then only a shul's
 own team may post for it (NFR-4).

@@ -72,6 +72,9 @@ export function SignInPage() {
             className={FIELD}
           />
         </Field>
+        <Link to="/forgot-password" className={`block text-sm ${LINK}`}>
+          Forgot password?
+        </Link>
         <button type="submit" disabled={submit.isPending} className={BUTTON}>
           {submit.isPending ? 'Signing in…' : 'Sign in'}
         </button>

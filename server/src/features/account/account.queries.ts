@@ -86,10 +86,16 @@ export class AccountQueries {
    * Deletes the user. The database removes everything else of theirs with it
    * (schema.prisma, onDelete: Cascade): sessions, logins, saves, follows,
    * topics, reports, alerts, team places. Change history keeps the change but
-   * forgets who made it. False if there was no such user.
+   * forgets who made it. Unused password reset links go too: they hold the
+   * user's id but aren't linked to the row. False if there was no such user.
    */
   async deleteUser(userId: string): Promise<boolean> {
-    const { count } = await this.prisma.user.deleteMany({ where: { id: userId } });
+    const [, { count }] = await this.prisma.$transaction([
+      this.prisma.verification.deleteMany({
+        where: { value: userId, identifier: { startsWith: 'reset-password:' } },
+      }),
+      this.prisma.user.deleteMany({ where: { id: userId } }),
+    ]);
     return count > 0;
   }
 }
