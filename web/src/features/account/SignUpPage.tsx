@@ -11,6 +11,7 @@ import { Link, useSearch } from '@tanstack/react-router';
 import { messageFor } from '../../core/api';
 import { sendLinkAgain, signUp } from './account.api';
 import { AuthShell, BUTTON, ErrorBox, FIELD, Field, LINK } from './AuthShell';
+import { currentDarkMode } from './useDarkMode';
 
 /** Better Auth's shortest allowed password. */
 const MIN_PASSWORD = 8;
@@ -22,7 +23,11 @@ export function SignUpPage() {
   const [password, setPassword] = useState('');
 
   const submit = useMutation({
-    mutationFn: () => signUp({ name: name.trim(), email: email.trim(), password }, redirect),
+    mutationFn: () =>
+      signUp(
+        { name: name.trim(), email: email.trim(), password, darkMode: currentDarkMode() },
+        redirect,
+      ),
   });
 
   function onSubmit(event: FormEvent) {

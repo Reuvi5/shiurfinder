@@ -54,6 +54,9 @@ export function createAuth(database: BetterAuthOptions['database'], emails: Acco
       additionalFields: {
         // input: false, so sign-up can't set it: nobody makes themselves a moderator (NFR-4).
         isModerator: { type: 'boolean', defaultValue: false, input: false },
+        // input: true, so a guest's dark mode (kept in their browser) carries
+        // over into the account they sign up for (FR-4). Changed later at /account.
+        darkMode: { type: 'boolean', defaultValue: false, input: true },
       },
     },
   });

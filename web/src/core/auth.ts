@@ -13,8 +13,16 @@ import { API_URL } from './config';
 export const authClient = createAuthClient({
   baseURL: API_URL,
   basePath: '/auth', // AUTH_PATH in server/src/core/auth/auth.config.ts
-  // Our extra field on User, so `isModerator` is typed below.
-  plugins: [inferAdditionalFields({ user: { isModerator: { type: 'boolean', input: false } } })],
+  // Our extra fields on User (server/src/core/auth/auth.config.ts), so they're
+  // typed below. darkMode can be sent at sign-up (FR-4).
+  plugins: [
+    inferAdditionalFields({
+      user: {
+        isModerator: { type: 'boolean', input: false },
+        darkMode: { type: 'boolean', input: true, required: false },
+      },
+    }),
+  ],
 });
 
 /** The person signed in, as the website sees them. */
