@@ -5,6 +5,8 @@
 
 import { useEffect, useState } from 'react';
 import type { ShiurDetails } from '@shiurfinder/shared';
+import { ReportButton } from '../reports/ReportButton';
+import { ReportNotice } from '../reports/ReportNotice';
 import {
   calendarFile,
   directionsUrl,
@@ -45,6 +47,8 @@ export function ShiurInfo({ details }: { details: ShiurDetails }) {
       </header>
 
       <StatusNotice details={details} when={when} />
+      {/* What people reported, as "unverified report" (FR-16). */}
+      <ReportNotice occurrenceId={details.occurrenceId} status={details.status} />
 
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
         <Fact label="When">
@@ -69,7 +73,7 @@ export function ShiurInfo({ details }: { details: ShiurDetails }) {
         </p>
       )}
 
-      <Buttons details={details} />
+      <Buttons details={details} now={now} />
     </article>
   );
 }
@@ -135,9 +139,7 @@ function StatusNotice({ details, when }: { details: ShiurDetails; when: Timing }
   if (details.status === 'CHANGED') {
     return <Notice tone="amber">This date was changed.{reason}</Notice>;
   }
-  if (details.status === 'REPORTED') {
-    return <Notice tone="amber">Reported as not happening, not confirmed yet.</Notice>;
-  }
+  // REPORTED: ReportNotice shows it, with what was reported (FR-16).
   if (when.kind === 'over') {
     return <Notice tone="slate">This date has passed.</Notice>;
   }
@@ -163,13 +165,13 @@ const SECONDARY =
 const DISABLED =
   'rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-400 dark:border-slate-800 dark:text-slate-600';
 
-/** Save, the two calendar buttons, Directions, Share, Report (FR-9). */
-function Buttons({ details }: { details: ShiurDetails }) {
+/** Save, the two calendar buttons, Directions, Share, Report (FR-9, FR-16). */
+function Buttons({ details, now }: { details: ShiurDetails; now: number }) {
   const directions = directionsUrl(details);
 
   return (
     <div className="flex flex-wrap gap-2 border-t border-slate-200 pt-4 dark:border-slate-800">
-      {/* Saving and reporting need an account (FR-1), so they stay off until accounts are built. */}
+      {/* Saving needs an account (FR-1), so it stays off until saves are built (FR-11). */}
       <button
         type="button"
         disabled
@@ -190,14 +192,7 @@ function Buttons({ details }: { details: ShiurDetails }) {
         </a>
       )}
       <ShareButton details={details} />
-      <button
-        type="button"
-        disabled
-        title="Sign in to report. Coming with accounts."
-        className={DISABLED}
-      >
-        Report
-      </button>
+      <ReportButton details={details} now={now} />
     </div>
   );
 }

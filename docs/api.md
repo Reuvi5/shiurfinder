@@ -25,6 +25,8 @@ needs an account (`@UseGuards(SignedInGuard)`, see `server/src/core/auth/`).
 | `GET /account` | The signed-in user's settings, and every topic they can pick (FR-4) | Yes | none | `AccountSettings` (account.ts) | `NOT_SIGNED_IN` |
 | `PATCH /account` | Change some settings; anything left out stays. Returns all of them (FR-4) | Yes | body: `AccountChanges` (account.ts) | `AccountSettings` (account.ts) | `NOT_SIGNED_IN`, `INVALID_REQUEST` (also for a topic that doesn't exist) |
 | `DELETE /account` | Delete the account and all its personal data; signs them out (FR-4) | Yes | none | nothing (204) | `NOT_SIGNED_IN` |
+| `GET /reports/:occurrenceId` | A date's open (unverified) reports, newest first. Never says who sent them (FR-16) | No | none | `ShiurReports` (reports.ts) | `SHIUR_NOT_FOUND` |
+| `POST /reports/:occurrenceId` | Report that a date isn't happening; marks it `REPORTED` unless the publisher changed it. Returns the open reports (FR-16) | Yes | body: `NewReport` (reports.ts) | `ShiurReports` (reports.ts) | `NOT_SIGNED_IN`, `INVALID_REQUEST`, `SHIUR_NOT_FOUND`, `ALREADY_CANCELLED`, `REPORT_TOO_LATE`, `ALREADY_REPORTED` |
 | `/auth/...` | Sign up, sign in, sign out, who is signed in, the email link, password reset (FR-2). Answered by Better Auth, not our code. Signing in needs a verified email | No | see [Better Auth's list](https://www.better-auth.com/docs/concepts/api) | Better Auth's own | Better Auth's own, e.g. `EMAIL_NOT_VERIFIED`, `INVALID_EMAIL_OR_PASSWORD` (their wording is in `web/src/core/api.ts` too) |
 
 The portal is open to everyone until teams are built (FR-18). Then only a
@@ -43,11 +45,14 @@ is for developers.
 | --- | --- | --- |
 | `INVALID_REQUEST` | 400 | The input broke a rule (`message` names the field), or a picked id doesn't exist or doesn't fit (a room from another shul) |
 | `DATE_PASSED` | 400 | A featured shiur's date and time are already over |
+| `ALREADY_CANCELLED` | 400 | Reporting a date that is already cancelled |
+| `REPORT_TOO_LATE` | 400 | Reporting a date that is over (its end time, or start plus its length, 60 minutes if none) |
 | `BAD_REQUEST` | 400 | Any other 400 thrown without a code |
 | `NOT_SIGNED_IN` | 401 | The route needs an account and there isn't one |
 | `NO_PERMISSION` | 403 | Signed in, but not allowed (not used yet) |
 | `SHUL_NOT_FOUND` | 404 | No such shul, or not approved |
 | `SHIUR_NOT_FOUND` | 404 | No such shiur date, or not approved |
+| `ALREADY_REPORTED` | 409 | This user already has an open report on this date |
 | `PUBLISHER_NOT_FOUND` | 404 | No such shul or maggid shiur, or not approved |
 | `NOT_FOUND` | 404 | Any other 404, e.g. a route that doesn't exist |
 | `TOO_MANY_REQUESTS` | 429 | Too many requests (nothing sends it yet) |

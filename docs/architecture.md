@@ -28,6 +28,7 @@ server/                    The API (NestJS). Runs on http://localhost:3000
       publishers/              shul and maggid shiur pages (FR-10): /publishers/:id
       portal/                  posting a shiur (FR-20): /portal/options, POST /portal/shiurim
       account/                 account settings (FR-4): GET, PATCH and DELETE /account
+      reports/                 reporting a date isn't happening (FR-16): GET and POST /reports/:occurrenceId
       health/                  /health: is the server up, can it reach the database
     core/                    code every feature uses
       auth/                    login (Better Auth): /auth/..., SignedInGuard, @CurrentUser(); auth.email.ts: its emails
@@ -78,6 +79,7 @@ web/                       The website (React + Vite). Runs on http://localhost:
       publisher-page/        shul page (/shul/:id) and maggid shiur page (/maggid/:id)
       publisher-portal/      the "Post a shiur" form at /portal (FR-20)
         Combobox.tsx           a list you can pick from or type a new name in
+      reports/               the Report button and the "unverified report" notice (FR-16)
 
 shared/                    the types the server and website send each other
   common.ts                  types several features use, and the error shape
@@ -104,7 +106,7 @@ compile instead of breaking at runtime.
 
 ## Server: one folder per feature, three layers per folder
 
-Each feature folder (`map/`, `shiur-page/`, `publishers/` and `portal/` today) has the same files:
+Each feature folder (`map/`, `shiur-page/`, `publishers/`, `portal/` and `reports/` today) has the same files:
 
 | File                 | Its job                                                         | Should never     |
 | -------------------- | --------------------------------------------------------------- | ---------------- |
@@ -202,6 +204,20 @@ request returns. The form then clears TanStack Query's cache so the map doesn't 
 old results. There are no teams or moderators yet, so new shuls and maggidei shiur are approved
 straight away. Once teams are built (FR-18), only the shul's team may post for it, and new
 ones wait for a moderator (FR-23, NFR-4).
+
+**Reporting a date (FR-16).** The shiur's Report button (`features/reports/ReportButton.tsx`,
+shown by `ShiurInfo`) sends a guest to `/sign-in?redirect=` and comes back. A signed-in
+user picks one of the SRS's three reasons: maggid shiur unavailable, shul closed, or
+Other with a write-in. `POST /reports/:occurrenceId` saves it in `Report.reason` as text
+("Shul closed", "Other: moved upstairs"), so no schema change was needed, and marks the
+date `REPORTED`. A date the publisher marked `CHANGED` keeps that status, so their change
+note isn't lost; its report still shows. The map's lists already show a "Reported" badge
+for that status. `ReportNotice` lists the open reports as "Unverified report" to everyone
+(`GET /reports/:occurrenceId`), without saying who sent them. One open report per person
+per date; none for a cancelled date or one that's over. For now any signed-in user can
+report; the SRS limits it to people who saved or follow the shiur (FR-11, FR-12). The
+publisher confirming (cancels the date) or dismissing a report, and being alerted, come
+with teams, the listings table and alerts (FR-18, FR-22, FR-15).
 
 ## Login (FR-2)
 
@@ -334,9 +350,9 @@ behind it. To add a filter, add one line there.
 extension, so "gemora" still finds "Gemara".
 
 **Tables not used yet.** `schema.prisma` already has the tables for follows,
-saves, reports and alerts from the design document. Used so far: Publisher,
+saves and alerts from the design document. Used so far: Publisher,
 Room, Shiur, Occurrence, Topic, Language and Audience, for login User,
-Session, Account and Verification, and UserTopic for account settings.
+Session, Account and Verification, UserTopic for account settings, and Report for reports.
 
 ## Privacy rules the code follows
 

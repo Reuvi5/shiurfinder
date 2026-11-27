@@ -10,7 +10,7 @@ that changes it.
 ## Summary
 
 - **Must (18):** 11 partly, 7 not started.
-- **Should (5):** 1 partly, 4 not started.
+- **Should (5):** 2 partly, 3 not started.
 - **Sign-in pages are built (FR-2).** Signing in needs a verified email; until
   Amazon SES is set up, the link is in the server console. Save, Follow and
   Report (FR-1, FR-9, FR-10) can now send guests to `/sign-in?redirect=...`.
@@ -21,7 +21,7 @@ Update these counts when a row's status changes.
 
 | FR    | What                                   | Priority | Status      | Where to see it                              | Notes                                                                                                                                     |
 | ----- | -------------------------------------- | -------- | ----------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| FR-1  | Browse without an account              | Must     | Partly      | Every page                                   | Save, Follow and Report are greyed out; they should send a guest to `/sign-in?redirect=` (comes with FR-11, FR-12, FR-16)                                                   |
+| FR-1  | Browse without an account              | Must     | Partly      | Every page                                   | Report sends a guest to `/sign-in?redirect=`. Save and Follow are greyed out; they should do the same (comes with FR-11, FR-12)                                                   |
 | FR-2  | Sign up and sign in                    | Must     | Partly      | `/sign-up`, `/sign-in`, Sign in on the map   | Emails go through Amazon SES, but SES isn't set up in AWS yet, so they're printed in the server console. Google sign-in only lets in test users until it's published                                  |
 | FR-3  | Choose where distance is measured from | Must     | Partly      | `/`: location button and address search      | Walk and drive times ("5 min walk", Google Routes), saving a home address                                                                 |
 | FR-4  | Account settings                       | Must     | Partly      | `/account` (click your name on the map)      | Alert choices are saved, but alerts aren't sent yet (FR-15); deleting will also need to remove the user's SNS topic once FR-15 makes them |
@@ -29,14 +29,14 @@ Update these counts when a row's status changes.
 | FR-6  | Featured tab                           | Must     | Partly      | `/`, Featured tab                            | "Newly posted" row of flyers, grouping by day, flyers                                                                                     |
 | FR-7  | Weekly tab                             | Must     | Partly      | `/`, Weekly tab                              | The Today / All week choice                                                                                                               |
 | FR-8  | Search and filters                     | Must     | Partly      | `/`: search box and Filters                  | Maggid shiur and shul filters (the search box finds them)                                                                                 |
-| FR-9  | Shiur page                             | Must     | Partly      | Click any shiur, or `/shiur/:id`             | Save and Report (FR-11, FR-16), flyer                                                                                                        |
+| FR-9  | Shiur page                             | Must     | Partly      | Click any shiur, or `/shiur/:id`             | Save (FR-11), flyer                                                                                                        |
 | FR-10 | Shul and maggid shiur pages            | Must     | Partly      | `/shul/:id`, `/maggid/:id`                   | Follow (FR-12), logo, photo, linked shiurim (FR-19)                                                                                  |
 | FR-11 | Save to My Schedule                    | Must     | Not started |                                              |                                                                                                                                           |
 | FR-12 | Follow                                 | Must     | Not started |                                              |                                                                                                                                           |
 | FR-13 | Add to Google Calendar                 | Should   | Partly      | Shiur page: Google and Apple/Outlook buttons | Adding all saved shiurim at once (needs FR-11)                                                                                            |
 | FR-14 | Recommendations                        | Should   | Not started |                                              |                                                                                                                                           |
 | FR-15 | Reminders and alerts                   | Must     | Not started |                                              | Design doc: emails through AWS SNS, browser notifications through web-push, a job every minute for reminders                              |
-| FR-16 | Report that a shiur isn't happening    | Should   | Not started |                                              |                                                                                                                                           |
+| FR-16 | Report that a shiur isn't happening    | Should   | Partly      | Shiur page: Report button | Any signed-in user can report, not only those who saved or follow it (needs FR-11, FR-12). Reports show as "unverified"; the publisher confirming or dismissing them, and being alerted, need FR-18, FR-22 and FR-15 |
 | FR-17 | Register as a publisher                | Must     | Not started |                                              |                                                                                                                                           |
 | FR-18 | Team and roles                         | Must     | Not started |                                              |                                                                                                                                           |
 | FR-19 | Linked shiurim                         | Should   | Not started |                                              |                                                                                                                                           |
